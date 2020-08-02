@@ -88,7 +88,17 @@ namespace ScsLib
 		{
 			if (hashFile == null) throw new ArgumentNullException(nameof(hashFile));
 
-			return await hashFile.ReadBytes(_stream, cancellationToken).ConfigureAwait(false);
+			byte[] data = await hashFile.ReadBytes(_stream, cancellationToken).ConfigureAwait(false);
+
+			if (data.Length >= 4 && BitConverter.ToUInt32(data, 0) == 0x014B6E33) //3nk
+			{
+				using (MemoryStream ms = new MemoryStream(data))
+				{
+					return await SII3nkTranscode.Transcode(ms, cancellationToken).ConfigureAwait(false);
+				}
+			}
+
+			return data;
 		}
 
 		public static async Task<ScsFile> Read(Stream stream, CancellationToken cancellationToken = default)
