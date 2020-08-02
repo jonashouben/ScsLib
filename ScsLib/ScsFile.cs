@@ -80,6 +80,13 @@ namespace ScsLib
 			return TryGetFile(CityHash.CityHash64(filePath), out file);
 		}
 
+		public async ValueTask<byte[]> ReadFile(HashFile hashFile, CancellationToken cancellationToken = default)
+		{
+			if (hashFile == null) throw new ArgumentNullException(nameof(hashFile));
+
+			return await hashFile.ReadBytes(_fileStream, cancellationToken).ConfigureAwait(false);
+		}
+
 		public static async Task<ScsFile> Read(string path, CancellationToken cancellationToken = default)
 		{
 			if (path == null) throw new ArgumentNullException(nameof(path));
