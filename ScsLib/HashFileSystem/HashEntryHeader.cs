@@ -14,6 +14,10 @@ namespace ScsLib.HashFileSystem
 		public int CompressedSize { get; internal set; }
 		public bool IsCompressed => Size != CompressedSize;
 
+		internal HashEntryHeader()
+		{
+		}
+
 		public bool Equals(HashEntryHeader other)
 		{
 			return other?.Hash == Hash;
