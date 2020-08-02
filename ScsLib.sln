@@ -5,6 +5,8 @@ VisualStudioVersion = 16.0.30309.148
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ScsLib", "ScsLib\ScsLib.csproj", "{2082C22A-14FF-4FFC-922B-6EBF53C5700A}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ScsLib.Test", "ScsLib.Test\ScsLib.Test.csproj", "{4B43D3DF-B636-4484-8B24-2DB54424B3EC}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -15,6 +17,10 @@ Global
 		{2082C22A-14FF-4FFC-922B-6EBF53C5700A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{2082C22A-14FF-4FFC-922B-6EBF53C5700A}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{2082C22A-14FF-4FFC-922B-6EBF53C5700A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4B43D3DF-B636-4484-8B24-2DB54424B3EC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4B43D3DF-B636-4484-8B24-2DB54424B3EC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4B43D3DF-B636-4484-8B24-2DB54424B3EC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4B43D3DF-B636-4484-8B24-2DB54424B3EC}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

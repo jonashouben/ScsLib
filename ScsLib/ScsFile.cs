@@ -12,16 +12,16 @@ namespace ScsLib
 {
 	public sealed class ScsFile : IDisposable
 	{
-		private readonly FileStream _fileStream;
+		private readonly Stream _stream;
 		private bool _disposed;
 
 		public ScsFileHeader Header { get; internal set; }
 		public IReadOnlyDictionary<ulong, HashEntry> Entries { get; internal set; }
 		public HashDirectory RootDirectory { get; internal set; }
 
-		private ScsFile(FileStream fileStream)
+		private ScsFile(Stream stream)
 		{
-			_fileStream = fileStream;
+			_stream = stream;
 		}
 
 		public bool TryGetEntry(ulong hash, out HashEntry entry)
@@ -84,19 +84,19 @@ namespace ScsLib
 		{
 			if (hashFile == null) throw new ArgumentNullException(nameof(hashFile));
 
-			return await hashFile.ReadBytes(_fileStream, cancellationToken).ConfigureAwait(false);
+			return await hashFile.ReadBytes(_stream, cancellationToken).ConfigureAwait(false);
 		}
 
-		public static async Task<ScsFile> Read(string path, CancellationToken cancellationToken = default)
+		public static async Task<ScsFile> Read(Stream stream, CancellationToken cancellationToken = default)
 		{
-			if (path == null) throw new ArgumentNullException(nameof(path));
-
-			FileStream fs = new FileStream(path, FileMode.Open, FileAccess.Read);
+			if (stream == null) throw new ArgumentNullException(nameof(stream));
+			if (!stream.CanRead) throw new InvalidOperationException();
+			if (!stream.CanSeek) throw new InvalidOperationException();
 
 			// Read File Header
 
 			ScsFileHeader header;
-			using (MemoryStream ms = new MemoryStream(await fs.ReadBytesAsync(ScsFileHeader.HeaderSize, cancellationToken).ConfigureAwait(false)))
+			using (MemoryStream ms = new MemoryStream(await stream.ReadBytesAsync(ScsFileHeader.HeaderSize, cancellationToken).ConfigureAwait(false)))
 			{
 				header = new ScsFileHeader
 				{
@@ -111,11 +111,11 @@ namespace ScsLib
 
 			// Read Entry Headers
 
-			fs.Seek(header.StartOffset, SeekOrigin.Begin);
+			stream.Seek(header.StartOffset, SeekOrigin.Begin);
 
 			List<HashEntryHeader> entryHeaders = new List<HashEntryHeader>();
 
-			using (MemoryStream ms = new MemoryStream(await fs.ReadBytesAsync(HashEntryHeader.HeaderSize * header.EntryCount, cancellationToken).ConfigureAwait(false)))
+			using (MemoryStream ms = new MemoryStream(await stream.ReadBytesAsync(HashEntryHeader.HeaderSize * header.EntryCount, cancellationToken).ConfigureAwait(false)))
 			{
 				for (int i = 0; i < header.EntryCount; i++)
 				{
@@ -154,7 +154,7 @@ namespace ScsLib
 				entries.Add(entryHeader.Hash, entry);
 			}
 
-			ScsFile scsFile = new ScsFile(fs) { Header = header, Entries = entries };
+			ScsFile scsFile = new ScsFile(stream) { Header = header, Entries = entries };
 
 			// Create Root Directory
 
@@ -188,9 +188,16 @@ namespace ScsLib
 				scsFile.RootDirectory = dummyRootDirectory;
 			}
 
-			scsFile.RootDirectory.Entries = await GetEntries(scsFile, scsFile.RootDirectory, fs, cancellationToken).ToArrayAsync(cancellationToken).ConfigureAwait(false);
+			scsFile.RootDirectory.Entries = await GetEntries(scsFile, scsFile.RootDirectory, stream, cancellationToken).ToArrayAsync(cancellationToken).ConfigureAwait(false);
 
 			return scsFile;
+		}
+
+		public static async Task<ScsFile> Read(string path, CancellationToken cancellationToken = default)
+		{
+			if (path == null) throw new ArgumentNullException(nameof(path));
+
+			return await Read(new FileStream(path, FileMode.Open, FileAccess.Read), cancellationToken).ConfigureAwait(false);
 		}
 
 		private static async IAsyncEnumerable<HashEntry> GetEntries(ScsFile scsFile, HashDirectory directory, Stream stream, [EnumeratorCancellation] CancellationToken cancellationToken = default)
@@ -228,7 +235,7 @@ namespace ScsLib
 			{
 				if (disposing)
 				{
-					_fileStream.Dispose();
+					_stream.Dispose();
 				}
 
 				_disposed = true;
