@@ -1,0 +1,39 @@
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Text;
+using System.Threading;
+using System.Threading.Tasks;
+
+namespace ScsLib.HashFileSystem
+{
+	public sealed class DummyHashDirectory : HashDirectory
+	{
+		private readonly List<string> _entries;
+		public override HashEntryHeader Header { get => throw new NotSupportedException(); internal set => throw new NotSupportedException(); }
+
+		internal DummyHashDirectory()
+		{
+			_entries = new List<string>();
+		}
+
+		internal void AddDirectory(string directoryName)
+		{
+			_entries.Add("*" + directoryName);
+		}
+
+		internal void AddFile(string fileName)
+		{
+			_entries.Add(fileName);
+		}
+
+		internal override ValueTask<byte[]> ReadBytes(Stream stream, CancellationToken cancellationToken = default)
+		{
+#if NETSTANDARD2_0
+			return new ValueTask<byte[]>(Encoding.UTF8.GetBytes(string.Join("\n", _entries)));
+#else
+			return new ValueTask<byte[]>(Encoding.UTF8.GetBytes(string.Join('\n', _entries)));
+#endif
+		}
+	}
+}
