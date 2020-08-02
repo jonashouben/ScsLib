@@ -12,6 +12,10 @@ namespace ScsLib
 {
 	public sealed class ScsFile : IDisposable
 	{
+		internal const uint Magic = 592659283;
+		internal const uint CityHashMethod = 1498696003;
+		internal const ushort HashVersion = 1;
+
 		private readonly Stream _stream;
 		private bool _disposed;
 
@@ -92,6 +96,7 @@ namespace ScsLib
 			if (stream == null) throw new ArgumentNullException(nameof(stream));
 			if (!stream.CanRead) throw new InvalidOperationException();
 			if (!stream.CanSeek) throw new InvalidOperationException();
+			if (stream.Length < ScsFileHeader.HeaderSize) throw new FormatException($"Stream has less than {ScsFileHeader.HeaderSize} bytes (no header) !");
 
 			// Read File Header
 
@@ -108,6 +113,10 @@ namespace ScsLib
 					StartOffset = await ms.ReadIntAsync(cancellationToken).ConfigureAwait(false)
 				};
 			}
+
+			if (header.Magic != Magic) throw new NotSupportedException($"Magic {header.Magic} not supported!");
+			if (header.HashMethod != CityHashMethod) throw new NotSupportedException($"HashMethod {header.HashMethod} not supported!");
+			if (header.Version != HashVersion) throw new NotSupportedException($"HashVersion {header.Version} not supported!");
 
 			// Read Entry Headers
 
