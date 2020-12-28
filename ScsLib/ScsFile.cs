@@ -142,7 +142,7 @@ namespace ScsLib
 					{
 						Hash = await ms.ReadULongAsync(cancellationToken).ConfigureAwait(false),
 						Offset = await ms.ReadLongAsync(cancellationToken).ConfigureAwait(false),
-						Flags = await ms.ReadUIntAsync(cancellationToken).ConfigureAwait(false),
+						Flags = (HashEntryFlag) await ms.ReadUIntAsync(cancellationToken).ConfigureAwait(false),
 						Crc = await ms.ReadUIntAsync(cancellationToken).ConfigureAwait(false),
 						Size = await ms.ReadIntAsync(cancellationToken).ConfigureAwait(false),
 						CompressedSize = await ms.ReadIntAsync(cancellationToken).ConfigureAwait(false)
@@ -158,18 +158,15 @@ namespace ScsLib
 			{
 				HashEntry entry;
 
-				switch (entryHeader.Flags)
+				if (entryHeader.Flags.HasFlag(HashEntryFlag.Directory))
 				{
-					case 1:
-					case 3:
-					case 5:
-					case 7:
-						entry = new HashDirectory { Header = entryHeader };
-						break;
-					default:
-						entry = new HashFile { Header = entryHeader };
-						break;
+					entry = new HashDirectory { Header = entryHeader };
 				}
+				else
+				{
+					entry = new HashFile { Header = entryHeader };
+				}
+
 				entries.Add(entryHeader.Hash, entry);
 			}
 

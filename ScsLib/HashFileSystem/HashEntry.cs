@@ -37,7 +37,7 @@ namespace ScsLib.HashFileSystem
 		{
 			stream.Seek(Header.Offset, SeekOrigin.Begin);
 
-			if (Header.IsCompressed)
+			if (Header.Flags.HasFlag(HashEntryFlag.Compressed))
 			{
 				using (InflaterInputStream inflater = new InflaterInputStream(stream) { IsStreamOwner = false })
 				{
