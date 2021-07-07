@@ -1,7 +1,8 @@
-using AsyncBinaryExtensions;
+using System;
+using System.Collections.Generic;
 using System.IO;
-using System.Threading;
-using System.Threading.Tasks;
+using System.Linq;
+using System.Text;
 
 namespace ScsLib
 {
@@ -12,23 +13,34 @@ namespace ScsLib
 			return (byte) ((((i << 2) ^ ~i) << 3) ^ i);
 		}
 
-		public static async Task<byte[]> Transcode(Stream stream, CancellationToken cancellationToken = default)
+		private static IEnumerable<byte> _Transcode(Stream stream, byte seed)
 		{
-			SII3nkHeader header = new SII3nkHeader
+			using (BinaryReader reader = new BinaryReader(stream, Encoding.UTF8, true))
 			{
-				Signature = await stream.ReadUIntAsync(cancellationToken).ConfigureAwait(false),
-				UnkByte = await stream.ReadByteAsync(cancellationToken).ConfigureAwait(false),
-				Seed = await stream.ReadByteAsync(cancellationToken).ConfigureAwait(false)
-			};
+				for (int i = 0; stream.Position < stream.Length; i++)
+				{
+					yield return (byte) (reader.ReadByte() ^ KeyTable((byte)(seed + i)));
+				}
+			}
+		}
 
-			byte[] data = await stream.ReadToEndAsync(1024, cancellationToken).ConfigureAwait(false);
+		public static byte[] Transcode(Stream stream)
+		{
+			if (!stream.CanSeek) throw new InvalidOperationException("Stream not seekable!");
 
-			for (int i = 0; i < data.Length; i++)
+			SII3nkHeader header;
+
+			using (BinaryReader reader = new BinaryReader(stream, Encoding.UTF8, true))
 			{
-				data[i] = (byte) (data[i] ^ KeyTable((byte)(header.Seed + i)));
+				header = new SII3nkHeader
+				{
+					Signature = reader.ReadUInt32(),
+					UnkByte = reader.ReadByte(),
+					Seed = reader.ReadByte()
+				};
 			}
 
-			return data;
+			return _Transcode(stream, header.Seed).ToArray();
 		}
 
 		private class SII3nkHeader

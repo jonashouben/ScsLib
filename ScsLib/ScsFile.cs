@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using ScsLib.HashFileSystem;
 using System.Runtime.CompilerServices;
 using System.Linq;
+using System.Text;
 
 namespace ScsLib
 {
@@ -94,7 +95,7 @@ namespace ScsLib
 			{
 				using (MemoryStream ms = new MemoryStream(data))
 				{
-					return await SII3nkTranscode.Transcode(ms, cancellationToken).ConfigureAwait(false);
+					return SII3nkTranscode.Transcode(ms);
 				}
 			}
 
@@ -113,15 +114,18 @@ namespace ScsLib
 			ScsFileHeader header;
 			using (MemoryStream ms = new MemoryStream(await stream.ReadBytesAsync(ScsFileHeader.HeaderSize, cancellationToken).ConfigureAwait(false)))
 			{
-				header = new ScsFileHeader
+				using (BinaryReader reader = new BinaryReader(ms, Encoding.UTF8, true))
 				{
-					Magic = await ms.ReadUIntAsync(cancellationToken).ConfigureAwait(false),
-					Version = await ms.ReadUShortAsync(cancellationToken).ConfigureAwait(false),
-					Salt = await ms.ReadUShortAsync(cancellationToken).ConfigureAwait(false),
-					HashMethod = await ms.ReadUIntAsync(cancellationToken).ConfigureAwait(false),
-					EntryCount = await ms.ReadIntAsync(cancellationToken).ConfigureAwait(false),
-					StartOffset = await ms.ReadIntAsync(cancellationToken).ConfigureAwait(false)
-				};
+					header = new ScsFileHeader
+					{
+						Magic = reader.ReadUInt32(),
+						Version = reader.ReadUInt16(),
+						Salt = reader.ReadUInt16(),
+						HashMethod = reader.ReadUInt32(),
+						EntryCount = reader.ReadInt32(),
+						StartOffset = reader.ReadInt32()
+					};
+				}
 			}
 
 			if (header.Magic != Magic) throw new NotSupportedException($"Magic {header.Magic} not supported!");
@@ -136,17 +140,20 @@ namespace ScsLib
 
 			using (MemoryStream ms = new MemoryStream(await stream.ReadBytesAsync(HashEntryHeader.HeaderSize * header.EntryCount, cancellationToken).ConfigureAwait(false)))
 			{
-				for (int i = 0; i < header.EntryCount; i++)
+				using (BinaryReader reader = new BinaryReader(ms, Encoding.UTF8, true))
 				{
-					entryHeaders.Add(new HashEntryHeader
+					for (int i = 0; i < header.EntryCount; i++)
 					{
-						Hash = await ms.ReadULongAsync(cancellationToken).ConfigureAwait(false),
-						Offset = await ms.ReadLongAsync(cancellationToken).ConfigureAwait(false),
-						Flags = (HashEntryFlag) await ms.ReadUIntAsync(cancellationToken).ConfigureAwait(false),
-						Crc = await ms.ReadUIntAsync(cancellationToken).ConfigureAwait(false),
-						Size = await ms.ReadIntAsync(cancellationToken).ConfigureAwait(false),
-						CompressedSize = await ms.ReadIntAsync(cancellationToken).ConfigureAwait(false)
-					});
+						entryHeaders.Add(new HashEntryHeader
+						{
+							Hash = reader.ReadUInt64(),
+							Offset = reader.ReadInt64(),
+							Flags = (HashEntryFlag) reader.ReadUInt32(),
+							Crc = reader.ReadUInt32(),
+							Size = reader.ReadInt32(),
+							CompressedSize = reader.ReadInt32()
+						});
+					}
 				}
 			}
 
