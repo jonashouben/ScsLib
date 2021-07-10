@@ -39,7 +39,7 @@
 using System;
 using System.Text;
 
-namespace ScsLib
+namespace ScsLib.Hashing
 {
 	internal static class CityHash
 	{
@@ -65,12 +65,12 @@ namespace ScsLib
 		// Bitwise right rotate.
 		private static ulong Rotate(ulong val, int shift)
 		{
-			return shift == 0 ? val : (val >> shift) | (val << (64 - shift));
+			return shift == 0 ? val : val >> shift | val << 64 - shift;
 		}
 
 		private static ulong RotateByAtleast1(ulong val, int shift)
 		{
-			return (val >> shift) | (val << (64 - shift));
+			return val >> shift | val << 64 - shift;
 		}
 
 		private static void Swap(ref ulong lhs, ref ulong rhs)
@@ -82,17 +82,17 @@ namespace ScsLib
 
 		private static ulong ShiftMix(ulong val)
 		{
-			return val ^ (val >> 47);
+			return val ^ val >> 47;
 		}
 
 		private static ulong Fetch32(byte[] data, ulong pos = 0)
 		{
-			return BitConverter.ToUInt32(data, (int) pos);
+			return BitConverter.ToUInt32(data, (int)pos);
 		}
 
 		private static ulong Fetch64(byte[] data, ulong pos = 0)
 		{
-			return BitConverter.ToUInt64(data, (int) pos);
+			return BitConverter.ToUInt64(data, (int)pos);
 		}
 
 		// Hash 128 input bits down to 64 bits of output.
@@ -136,7 +136,7 @@ namespace ScsLib
 				byte c = s[len - 1];
 				uint y = a + ((uint)b << 8);
 				ulong z = len + ((uint)c << 2);
-				return ShiftMix((y * K2) ^ (z * K3)) * K2;
+				return ShiftMix(y * K2 ^ z * K3) * K2;
 			}
 
 			return K2;
@@ -159,7 +159,7 @@ namespace ScsLib
 		private static ulong HashLen33To64(byte[] s, ulong len)
 		{
 			ulong z = Fetch64(s, 24);
-			ulong a = Fetch64(s) + ((len + Fetch64(s, len - 16)) * K0);
+			ulong a = Fetch64(s) + (len + Fetch64(s, len - 16)) * K0;
 			ulong b = Rotate(a + z, 52);
 			ulong c = Rotate(a, 37);
 			a += Fetch64(s, 8);
@@ -176,8 +176,8 @@ namespace ScsLib
 			a += Fetch64(s, len - 16);
 			ulong wf = a + z;
 			ulong ws = b + Rotate(a, 31) + c;
-			ulong r = ShiftMix(((vf + ws) * K2) + ((wf + vs) * K0));
-			return ShiftMix((r * K0) + vs) * K2;
+			ulong r = ShiftMix((vf + ws) * K2 + (wf + vs) * K0);
+			return ShiftMix(r * K0 + vs) * K2;
 		}
 
 		// Return a 16-byte hash for 48 bytes.  Quick and dirty.
@@ -220,11 +220,11 @@ namespace ScsLib
 			ulong z = HashLen16(Fetch64(s, len - 48) + len, Fetch64(s, len - 24));
 			Uint128 v = WeakHashLen32WithSeeds(s, len - 64, len, z);
 			Uint128 w = WeakHashLen32WithSeeds(s, len - 32, y + K1, x);
-			x = (x * K1) + Fetch64(s);
+			x = x * K1 + Fetch64(s);
 
 			ulong pos = 0UL;
 			// Decrease len to the nearest multiple of 64, and operate on 64-byte chunks.
-			len = (len - 1) & ~(ulong)63;
+			len = len - 1 & ~(ulong)63;
 			do
 			{
 				x = Rotate(x + y + v.First + Fetch64(s, pos + 8), 37) * K1;
@@ -241,13 +241,13 @@ namespace ScsLib
 
 			} while (len != 0);
 
-			return HashLen16(HashLen16(v.First, w.First) + (ShiftMix(y) * K1) + z,
+			return HashLen16(HashLen16(v.First, w.First) + ShiftMix(y) * K1 + z,
 							 HashLen16(v.Second, w.Second) + x);
 		}
 
 		public static ulong CityHash64(string str)
 		{
-			return CityHash64(Encoding.UTF8.GetBytes(str), (ulong) str.Length);
+			return CityHash64(Encoding.UTF8.GetBytes(str), (ulong)str.Length);
 		}
 	}
 }

@@ -8,6 +8,7 @@ using ScsLib.HashFileSystem;
 using System.Runtime.CompilerServices;
 using System.Linq;
 using System.Text;
+using ScsLib.Hashing;
 
 namespace ScsLib
 {

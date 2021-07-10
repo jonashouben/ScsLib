@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 
-namespace ScsLib
+namespace ScsLib.Hashing
 {
 	public static class CityHashes
 	{
