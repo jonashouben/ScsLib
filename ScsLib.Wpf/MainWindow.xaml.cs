@@ -10,7 +10,7 @@ namespace ScsLib.Wpf
 	/// </summary>
 	public partial class MainWindow : Window
 	{
-		private ScsFile scsFile;
+		private ScsFile? scsFile;
 
 		public MainWindow()
 		{
@@ -40,7 +40,7 @@ namespace ScsLib.Wpf
 
 		private async void trvBrowser_SelectedItemChanged(object sender, RoutedPropertyChangedEventArgs<object> e)
 		{
-			if (trvBrowser.SelectedItem is HashFile file)
+			if (scsFile != null && trvBrowser.SelectedItem is HashFile file)
 			{
 				progress.IsIndeterminate = true;
 

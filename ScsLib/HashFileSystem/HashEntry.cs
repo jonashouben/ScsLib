@@ -10,20 +10,20 @@ namespace ScsLib.HashFileSystem
 {
 	public abstract class HashEntry : IEquatable<HashEntry>
 	{
-		public virtual HashEntryHeader Header { get; internal set; }
-		public string VirtualPath { get; internal set; }
+		public virtual HashEntryHeader Header { get; internal set; } = default!;
+		public string VirtualPath { get; internal set; } = default!;
 		public string Path => VirtualPath.Replace('/', System.IO.Path.DirectorySeparatorChar);
 
 		internal HashEntry()
 		{
 		}
 
-		public bool Equals(HashEntry other)
+		public bool Equals(HashEntry? other)
 		{
 			return other?.Header?.Equals(Header) == true;
 		}
 
-		public override bool Equals(object obj)
+		public override bool Equals(object? obj)
 		{
 			return Equals(obj as HashEntry);
 		}

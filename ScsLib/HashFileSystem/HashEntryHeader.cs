@@ -17,12 +17,12 @@ namespace ScsLib.HashFileSystem
 		{
 		}
 
-		public bool Equals(HashEntryHeader other)
+		public bool Equals(HashEntryHeader? other)
 		{
 			return other?.Hash == Hash;
 		}
 
-		public override bool Equals(object obj)
+		public override bool Equals(object? obj)
 		{
 			return Equals(obj as HashEntryHeader);
 		}

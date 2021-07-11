@@ -5,6 +5,8 @@
 
 		<IsPackable>false</IsPackable>
 		<AnalysisMode>AllEnabledByDefault</AnalysisMode>
+		<Nullable>enable</Nullable>
+		<WarningsAsErrors>nullable</WarningsAsErrors>
 	</PropertyGroup>
 
 	<ItemGroup>

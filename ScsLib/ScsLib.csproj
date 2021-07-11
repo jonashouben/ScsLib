@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
 	<PropertyGroup>
 		<TargetFrameworks>netstandard2.1;net5.0</TargetFrameworks>
@@ -13,6 +13,8 @@
 		<RepositoryUrl>https://github.com/jonashouben/ScsLib</RepositoryUrl>
 		<AnalysisMode>AllEnabledByDefault</AnalysisMode>
 		<EnableNETAnalyzers>true</EnableNETAnalyzers>
+		<Nullable>enable</Nullable>
+		<WarningsAsErrors>nullable</WarningsAsErrors>
 	</PropertyGroup>
 
 	<ItemGroup>

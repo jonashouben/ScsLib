@@ -9,12 +9,11 @@ namespace ScsLib.HashFileSystem
 {
 	public sealed class DummyHashDirectory : HashDirectory
 	{
-		private readonly List<string> _entries;
+		private readonly ICollection<string> _entries = new List<string>();
 		public override HashEntryHeader Header { get => throw new NotSupportedException(); internal set => throw new NotSupportedException(); }
 
 		internal DummyHashDirectory()
 		{
-			_entries = new List<string>();
 		}
 
 		internal void AddDirectory(string directoryName)
@@ -29,11 +28,7 @@ namespace ScsLib.HashFileSystem
 
 		internal override ValueTask<byte[]> ReadBytes(Stream stream, CancellationToken cancellationToken = default)
 		{
-#if NETSTANDARD2_0
-			return new ValueTask<byte[]>(Encoding.UTF8.GetBytes(string.Join("\n", _entries)));
-#else
 			return new ValueTask<byte[]>(Encoding.UTF8.GetBytes(string.Join('\n', _entries)));
-#endif
 		}
 	}
 }

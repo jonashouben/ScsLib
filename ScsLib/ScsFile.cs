@@ -9,6 +9,7 @@ using System.Runtime.CompilerServices;
 using System.Linq;
 using System.Text;
 using ScsLib.Hashing;
+using System.Diagnostics.CodeAnalysis;
 
 namespace ScsLib
 {
@@ -21,75 +22,72 @@ namespace ScsLib
 		private readonly Stream _stream;
 		private bool _disposed;
 
-		public ScsFileHeader Header { get; internal set; }
-		public IReadOnlyDictionary<ulong, HashEntry> Entries { get; internal set; }
-		public HashDirectory RootDirectory { get; internal set; }
+		public ScsFileHeader Header { get; internal set; } = default!;
+		public IReadOnlyDictionary<ulong, HashEntry> Entries { get; internal set; } = new Dictionary<ulong, HashEntry>();
+		public HashDirectory RootDirectory { get; internal set; } = default!;
 
 		private ScsFile(Stream stream)
 		{
 			_stream = stream;
 		}
 
-		public bool TryGetEntry(ulong hash, out HashEntry entry)
+		public bool TryGetEntry(ulong hash, [NotNullWhen(true)] out HashEntry? entry)
 		{
 			return Entries.TryGetValue(hash, out entry);
 		}
 
-		public bool TryGetEntry(string path, out HashEntry entry)
+		public bool TryGetEntry(string path, [NotNullWhen(true)] out HashEntry? entry)
 		{
-			if (path == null) throw new ArgumentNullException(nameof(path));
-
 			if (TryGetEntry(CityHash.CityHash64(path), out entry))
 			{
 				return true;
 			}
 
-			entry = null;
 			return false;
 		}
 
-		public bool TryGetDirectory(ulong hash, out HashDirectory directory)
+		public bool TryGetDirectory(ulong hash, [NotNullWhen(true)] out HashDirectory? directory)
 		{
-			if (TryGetEntry(hash, out HashEntry entry))
+			if (TryGetEntry(hash, out HashEntry? entry))
 			{
-				directory = entry as HashDirectory;
-				return directory != null;
+				if (entry is HashDirectory directoryEntry)
+				{
+					directory = directoryEntry;
+					return true;
+				}
 			}
 
-			directory = null;
+			directory = default!;
 			return false;
 		}
 
-		public bool TryGetDirectory(string path, out HashDirectory directory)
+		public bool TryGetDirectory(string path, [NotNullWhen(true)] out HashDirectory? directory)
 		{
-			if (path == null) throw new ArgumentNullException(nameof(path));
-
 			return TryGetDirectory(CityHash.CityHash64(path), out directory);
 		}
 
-		public bool TryGetFile(ulong hash, out HashFile file)
+		public bool TryGetFile(ulong hash, [NotNullWhen(true)] out HashFile? file)
 		{
-			if (TryGetEntry(hash, out HashEntry entry))
+			if (TryGetEntry(hash, out HashEntry? entry))
 			{
-				file = entry as HashFile;
-				return file != null;
+				if (entry is HashFile fileEntry)
+				{
+					file = fileEntry;
+					return true;
+				}
 			}
 
-			file = null;
+			file = default!;
 			return false;
 		}
 
-		public bool TryGetFile(string filePath, out HashFile file)
+		public bool TryGetFile(string filePath, [NotNullWhen(true)] out HashFile? file)
 		{
-			if (filePath == null) throw new ArgumentNullException(nameof(filePath));
-
 			return TryGetFile(CityHash.CityHash64(filePath), out file);
 		}
 
 		public async ValueTask<byte[]> ReadFile(HashFile hashFile, CancellationToken cancellationToken = default)
 		{
-			if (hashFile == null) throw new ArgumentNullException(nameof(hashFile));
-
 			byte[] data = await hashFile.ReadBytes(_stream, cancellationToken).ConfigureAwait(false);
 
 			if (data.Length >= 4 && BitConverter.ToUInt32(data, 0) == 0x014B6E33) //3nk
@@ -105,7 +103,6 @@ namespace ScsLib
 
 		public static async Task<ScsFile> Read(Stream stream, CancellationToken cancellationToken = default)
 		{
-			if (stream == null) throw new ArgumentNullException(nameof(stream));
 			if (!stream.CanRead) throw new InvalidOperationException();
 			if (!stream.CanSeek) throw new InvalidOperationException();
 			if (stream.Length < ScsFileHeader.HeaderSize) throw new FormatException($"Stream has less than {ScsFileHeader.HeaderSize} bytes (no header) !");
@@ -182,7 +179,7 @@ namespace ScsLib
 
 			// Create Root Directory
 
-			if (scsFile.TryGetDirectory(CityHashes.RootEntry, out HashDirectory rootDirectory))
+			if (scsFile.TryGetDirectory(CityHashes.RootEntry, out HashDirectory? rootDirectory))
 			{
 				rootDirectory.VirtualPath = "";
 				scsFile.RootDirectory = rootDirectory;
@@ -219,8 +216,6 @@ namespace ScsLib
 
 		public static async Task<ScsFile> Read(string path, CancellationToken cancellationToken = default)
 		{
-			if (path == null) throw new ArgumentNullException(nameof(path));
-
 			return await Read(new FileStream(path, FileMode.Open, FileAccess.Read), cancellationToken).ConfigureAwait(false);
 		}
 
@@ -233,7 +228,7 @@ namespace ScsLib
 				if (str.StartsWith("*", StringComparison.Ordinal))
 				{
 					path += str.Substring(1);
-					if (scsFile.TryGetDirectory(path, out HashDirectory nextDirectory))
+					if (scsFile.TryGetDirectory(path, out HashDirectory? nextDirectory))
 					{
 						nextDirectory.VirtualPath = path;
 						nextDirectory.Entries = await GetEntries(scsFile, nextDirectory, stream, cancellationToken).ToArrayAsync(cancellationToken).ConfigureAwait(false);
@@ -243,7 +238,7 @@ namespace ScsLib
 				else
 				{
 					path += str;
-					if (scsFile.TryGetFile(path, out HashFile file))
+					if (scsFile.TryGetFile(path, out HashFile? file))
 					{
 						file.VirtualPath = path;
 						yield return file;

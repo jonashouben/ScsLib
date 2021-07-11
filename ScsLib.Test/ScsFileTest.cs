@@ -10,16 +10,6 @@ namespace ScsLib.Test
 	{
 		[TestMethod]
 		[Timeout(1000)]
-		[ExpectedException(typeof(ArgumentNullException))]
-		public async Task Read_ParameterNull()
-		{
-			Stream stream = null;
-			await ScsFile.Read(stream).ConfigureAwait(false);
-			Assert.Fail();
-		}
-
-		[TestMethod]
-		[Timeout(1000)]
 		[ExpectedException(typeof(InvalidOperationException))]
 		public async Task Read_StreamNotReadable()
 		{
