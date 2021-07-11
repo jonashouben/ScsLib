@@ -3,7 +3,7 @@ using System.Text;
 
 namespace ScsLib.Hashing
 {
-	internal static class CityHash
+	public static class CityHash
 	{
 		private const ulong K0 = 0xc3a5c85c97cb3127UL;
 		private const ulong K1 = 0xb492b66fbe98f273UL;

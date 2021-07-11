@@ -6,7 +6,7 @@ namespace ScsLib.Hashing
 	{
 		public static readonly ulong RootEntry = CityHash.CityHash64("");
 
-		public static readonly IReadOnlyCollection<string> KnownDirectoryNames = new string[]
+		internal static readonly IReadOnlyCollection<string> KnownDirectoryNames = new string[]
 		{
 			"automat",
 			"contentbrowser",
@@ -34,7 +34,7 @@ namespace ScsLib.Hashing
 			"video"
 		};
 
-		public static readonly IReadOnlyCollection<string> KnownFileNames = new string[]
+		internal static readonly IReadOnlyCollection<string> KnownFileNames = new string[]
 		{
 			"base.cfg"
 		};
