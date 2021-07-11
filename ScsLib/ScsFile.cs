@@ -146,7 +146,7 @@ namespace ScsLib
 						{
 							Hash = reader.ReadUInt64(),
 							Offset = reader.ReadInt64(),
-							Flags = (HashEntryFlag) reader.ReadUInt32(),
+							Options = (HashEntryOption) reader.ReadUInt32(),
 							Crc = reader.ReadUInt32(),
 							Size = reader.ReadInt32(),
 							CompressedSize = reader.ReadInt32()
@@ -163,7 +163,7 @@ namespace ScsLib
 			{
 				HashEntry entry;
 
-				if (entryHeader.Flags.HasFlag(HashEntryFlag.Directory))
+				if (entryHeader.Options.HasFlag(HashEntryOption.Directory))
 				{
 					entry = new HashDirectory { Header = entryHeader };
 				}

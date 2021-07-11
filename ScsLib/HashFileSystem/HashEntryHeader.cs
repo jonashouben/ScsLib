@@ -8,7 +8,7 @@ namespace ScsLib.HashFileSystem
 
 		public ulong Hash { get; internal set; }
 		public long Offset { get; internal set; }
-		public HashEntryFlag Flags { get; internal set; }
+		public HashEntryOption Options { get; internal set; }
 		public uint Crc { get; internal set; }
 		public int Size { get; internal set; }
 		public int CompressedSize { get; internal set; }

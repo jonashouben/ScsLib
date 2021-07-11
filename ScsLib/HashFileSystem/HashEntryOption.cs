@@ -3,7 +3,7 @@
 namespace ScsLib.HashFileSystem
 {
 	[Flags]
-	public enum HashEntryFlag
+	public enum HashEntryOption
 	{
 		Directory = 1,
 		Compressed = 2,
