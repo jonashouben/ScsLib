@@ -9,7 +9,7 @@ namespace ScsLib.HashFileSystem
 {
 	public sealed class DummyHashDirectory : HashDirectory
 	{
-		private readonly ICollection<string> _entries = new List<string>();
+		private readonly ICollection<string> _entries = new HashSet<string>();
 		public override HashEntryHeader Header { get => throw new NotSupportedException(); internal set => throw new NotSupportedException(); }
 
 		internal DummyHashDirectory()

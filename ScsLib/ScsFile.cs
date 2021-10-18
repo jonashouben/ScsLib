@@ -221,27 +221,30 @@ namespace ScsLib
 
 		private static async IAsyncEnumerable<HashEntry> GetEntries(ScsFile scsFile, HashDirectory directory, Stream stream, [EnumeratorCancellation] CancellationToken cancellationToken = default)
 		{
-			foreach (string str in (await directory.ReadString(stream, cancellationToken).ConfigureAwait(false)).Split('\n'))
+			if (directory.VirtualPath != null)
 			{
-				string path = directory.VirtualPath + (directory.VirtualPath.Length > 0 ? "/" : "");
+				foreach (string str in (await directory.ReadString(stream, cancellationToken).ConfigureAwait(false)).Split('\n'))
+				{
+					string path = directory.VirtualPath + (directory.VirtualPath.Length > 0 ? "/" : "");
 
-				if (str.StartsWith("*", StringComparison.Ordinal))
-				{
-					path += str.Substring(1);
-					if (scsFile.TryGetDirectory(path, out HashDirectory? nextDirectory))
+					if (str.StartsWith("*", StringComparison.Ordinal))
 					{
-						nextDirectory.VirtualPath = path;
-						nextDirectory.Entries = await GetEntries(scsFile, nextDirectory, stream, cancellationToken).ToArrayAsync(cancellationToken).ConfigureAwait(false);
-						yield return nextDirectory;
+						path += str.Substring(1);
+						if (scsFile.TryGetDirectory(path, out HashDirectory? nextDirectory))
+						{
+							nextDirectory.VirtualPath = path;
+							nextDirectory.Entries = await GetEntries(scsFile, nextDirectory, stream, cancellationToken).ToArrayAsync(cancellationToken).ConfigureAwait(false);
+							yield return nextDirectory;
+						}
 					}
-				}
-				else
-				{
-					path += str;
-					if (scsFile.TryGetFile(path, out HashFile? file))
+					else
 					{
-						file.VirtualPath = path;
-						yield return file;
+						path += str;
+						if (scsFile.TryGetFile(path, out HashFile? file))
+						{
+							file.VirtualPath = path;
+							yield return file;
+						}
 					}
 				}
 			}

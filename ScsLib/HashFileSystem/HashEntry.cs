@@ -11,8 +11,8 @@ namespace ScsLib.HashFileSystem
 	public abstract class HashEntry : IEquatable<HashEntry>
 	{
 		public virtual HashEntryHeader Header { get; internal set; } = default!;
-		public string VirtualPath { get; internal set; } = default!;
-		public string Path => VirtualPath.Replace('/', System.IO.Path.DirectorySeparatorChar);
+		public string? VirtualPath { get; internal set; }
+		public string? Path => VirtualPath?.Replace('/', System.IO.Path.DirectorySeparatorChar);
 
 		internal HashEntry()
 		{
