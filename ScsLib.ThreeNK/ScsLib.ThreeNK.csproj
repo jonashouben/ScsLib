@@ -9,7 +9,7 @@
 		<Version>1.2.0.0</Version>
 		<Authors>Jonas Houben</Authors>
 		<Company />
-		<Description>C# Library for decoding 3nK format</Description>
+		<Description>C# Library for reading 3nK format</Description>
 		<PackageLicenseExpression>MIT</PackageLicenseExpression>
 		<RepositoryUrl>https://github.com/jonashouben/ScsLib</RepositoryUrl>
 	</PropertyGroup>
