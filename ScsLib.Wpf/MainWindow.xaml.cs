@@ -3,10 +3,12 @@ using Microsoft.Win32;
 using ScsLib.HashFileSystem;
 using ScsLib.HashFileSystem.Named;
 using ScsLib.HashFileSystem.Reader;
+using ScsLib.ThreeNK;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Text;
 using System.Windows;
 
 namespace ScsLib.Wpf
@@ -24,6 +26,7 @@ namespace ScsLib.Wpf
 		{
 			ServiceCollection services = new ServiceCollection();
 			services.AddScsLib();
+			services.AddThreeNK();
 			_services = services.BuildServiceProvider();
 			InitializeComponent();
 		}
@@ -85,10 +88,21 @@ namespace ScsLib.Wpf
 
 				IHashFsReader hashFsReader = _services.GetRequiredService<IHashFsReader>();
 				IHashEntryReader hashEntryReader = _services.GetRequiredService<IHashEntryReader>();
+				IThreeNKReader threeNKReader = _services.GetRequiredService<IThreeNKReader>();
 
 				using (FileStream fileStream = hashFsReader.Open(filePath))
 				{
-					trvText.Text = await hashEntryReader.ReadStringAsync(fileStream, file).ConfigureAwait(true);
+					byte[] data = await hashEntryReader.ReadAsync(fileStream, file).ConfigureAwait(true);
+
+					using (MemoryStream ms = new MemoryStream(data))
+					{
+						if (await threeNKReader.HasSignatureAsync(ms).ConfigureAwait(true))
+						{
+							data = await threeNKReader.ReadAsync(ms).ConfigureAwait(true);
+						}
+					}
+
+					trvText.Text = Encoding.UTF8.GetString(data);
 				}
 
 				progress.IsIndeterminate = false;
