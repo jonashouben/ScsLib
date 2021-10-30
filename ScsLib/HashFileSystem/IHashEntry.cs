@@ -2,9 +2,6 @@
 {
 	public interface IHashEntry
 	{
-		/// <summary>
-		/// Path hashed with CityHash
-		/// </summary>
-		ulong Hash { get; }
+		HashEntryHeader Header { get; }
 	}
 }

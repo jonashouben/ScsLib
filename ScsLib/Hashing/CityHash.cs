@@ -3,7 +3,7 @@ using System.Text;
 
 namespace ScsLib.Hashing
 {
-	public static class CityHash
+	public class CityHash : ICityHash
 	{
 		private const ulong K0 = 0xc3a5c85c97cb3127UL;
 		private const ulong K1 = 0xb492b66fbe98f273UL;
@@ -11,9 +11,9 @@ namespace ScsLib.Hashing
 		private const ulong K3 = 0xc949d7c7509e6557UL;
 		private const ulong KMul = 0x9ddfea08eb382d69UL;
 
-		public static ulong CityHash64(string str)
+		public ulong CityHash64(string input)
 		{
-			return CityHash64(Encoding.UTF8.GetBytes(str), str.Length);
+			return CityHash64(Encoding.UTF8.GetBytes(input), input.Length);
 		}
 
 		#region internal hashing

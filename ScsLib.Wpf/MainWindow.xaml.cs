@@ -1,6 +1,9 @@
-﻿using Microsoft.Win32;
+﻿using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Win32;
 using ScsLib.HashFileSystem;
-using System.Text;
+using ScsLib.HashFileSystem.Reader;
+using System;
+using System.IO;
 using System.Windows;
 
 namespace ScsLib.Wpf
@@ -10,10 +13,15 @@ namespace ScsLib.Wpf
 	/// </summary>
 	public partial class MainWindow : Window
 	{
-		private ScsFile? scsFile;
+		private readonly IServiceProvider _services;
+		private string? filePath;
+		private HashFs? hashFs;
 
 		public MainWindow()
 		{
+			ServiceCollection services = new ServiceCollection();
+			services.AddScsLib();
+			_services = services.BuildServiceProvider();
 			InitializeComponent();
 		}
 
@@ -29,10 +37,16 @@ namespace ScsLib.Wpf
 			{
 				progress.IsIndeterminate = true;
 
-				scsFile?.Dispose();
-				scsFile = await ScsFile.Read(dialog.FileName).ConfigureAwait(true);
+				filePath = dialog.FileName;
 
-				trvBrowser.ItemsSource = scsFile.RootDirectory.Entries;
+				IHashFsReader hashFsReader = _services.GetRequiredService<IHashFsReader>();
+
+				using (FileStream fileStream = hashFsReader.Open(filePath))
+				{
+					hashFs = await hashFsReader.ReadAsync(fileStream).ConfigureAwait(true);
+				}
+
+				trvBrowser.ItemsSource = hashFs.RootDirectory.EntryNames;
 
 				progress.IsIndeterminate = false;
 			}
@@ -40,13 +54,17 @@ namespace ScsLib.Wpf
 
 		private async void trvBrowser_SelectedItemChanged(object sender, RoutedPropertyChangedEventArgs<object> e)
 		{
-			if (scsFile != null && trvBrowser.SelectedItem is HashFile file)
+			if (filePath != null && trvBrowser.SelectedItem is HashFile file)
 			{
 				progress.IsIndeterminate = true;
 
-				byte[] content = await scsFile.ReadFile(file).ConfigureAwait(true);
+				IHashFsReader hashFsReader = _services.GetRequiredService<IHashFsReader>();
+				IHashEntryReader hashEntryReader = _services.GetRequiredService<IHashEntryReader>();
 
-				trvText.Text = Encoding.UTF8.GetString(content);
+				using (FileStream fileStream = hashFsReader.Open(filePath))
+				{
+					trvText.Text = await hashEntryReader.ReadStringAsync(fileStream, file).ConfigureAwait(false);
+				}
 
 				progress.IsIndeterminate = false;
 			}
@@ -58,7 +76,6 @@ namespace ScsLib.Wpf
 
 		private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
 		{
-			scsFile?.Dispose();
 		}
 	}
 }
