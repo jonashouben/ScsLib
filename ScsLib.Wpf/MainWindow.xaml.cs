@@ -1,9 +1,12 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Win32;
 using ScsLib.HashFileSystem;
+using ScsLib.HashFileSystem.Named;
 using ScsLib.HashFileSystem.Reader;
 using System;
+using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Windows;
 
 namespace ScsLib.Wpf
@@ -46,7 +49,29 @@ namespace ScsLib.Wpf
 					hashFs = await hashFsReader.ReadAsync(fileStream).ConfigureAwait(true);
 				}
 
-				trvBrowser.ItemsSource = hashFs.RootDirectory.EntryNames;
+				INamedHashDirectoryReader namedHashDirectoryReader = _services.GetRequiredService<INamedHashDirectoryReader>();
+
+				IEnumerable<INamedHashEntry> BuildTree(NamedHashDirectory namedHashDirectory)
+				{
+					return namedHashDirectoryReader.Read(hashFs, namedHashDirectory).Select(row =>
+					{
+						if (row is NamedHashDirectory currentDirectory)
+						{
+							return new NamedHashDirectoryTree
+							{
+								Header = currentDirectory.Header,
+								VirtualPath = currentDirectory.VirtualPath,
+								Entries = BuildTree(currentDirectory)
+							};
+						}
+						else
+						{
+							return row;
+						}
+					});
+				}
+
+				trvBrowser.ItemsSource = BuildTree(hashFs.RootDirectory);
 
 				progress.IsIndeterminate = false;
 			}
@@ -63,7 +88,7 @@ namespace ScsLib.Wpf
 
 				using (FileStream fileStream = hashFsReader.Open(filePath))
 				{
-					trvText.Text = await hashEntryReader.ReadStringAsync(fileStream, file).ConfigureAwait(false);
+					trvText.Text = await hashEntryReader.ReadStringAsync(fileStream, file).ConfigureAwait(true);
 				}
 
 				progress.IsIndeterminate = false;

@@ -14,6 +14,7 @@ namespace ScsLib
 			services.AddSingleton<IHashFsReader, HashFsReader>();
 			services.AddSingleton<IHashEntryReader, HashEntryReader>();
 			services.AddSingleton<IHashDirectoryReader, HashDirectoryReader>();
+			services.AddSingleton<INamedHashDirectoryReader, NamedHashDirectoryReader>();
 		}
 	}
 }

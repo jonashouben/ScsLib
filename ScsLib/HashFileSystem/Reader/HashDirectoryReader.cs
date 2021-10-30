@@ -24,7 +24,9 @@ namespace ScsLib.HashFileSystem.Reader
 
 		private async IAsyncEnumerable<HashDirectoryEntry> _ReadAsync(FileStream fileStream, HashDirectory hashDirectory, [EnumeratorCancellation] CancellationToken cancellationToken)
 		{
-			foreach (ReadOnlySpan<char> content in (await _hashEntryReader.ReadStringAsync(fileStream, hashDirectory, cancellationToken).ConfigureAwait(false)).Split('\n'))
+			string directoryString = await _hashEntryReader.ReadStringAsync(fileStream, hashDirectory, cancellationToken).ConfigureAwait(false);
+
+			foreach (ReadOnlySpan<char> content in directoryString.Split('\n'))
 			{
 				if (content.StartsWith("*", StringComparison.Ordinal))
 				{
@@ -32,6 +34,14 @@ namespace ScsLib.HashFileSystem.Reader
 					{
 						Type = HashDirectoryEntryType.Directory,
 						Name = content.Slice(1).ToString()
+					};
+				}
+				else
+				{
+					yield return new HashDirectoryEntry
+					{
+						Type = HashDirectoryEntryType.File,
+						Name = content.ToString()
 					};
 				}
 			}
