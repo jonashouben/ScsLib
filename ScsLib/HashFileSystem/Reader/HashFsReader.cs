@@ -1,4 +1,5 @@
-﻿using ScsLib.HashFileSystem.Named;
+﻿using Microsoft.Extensions.Options;
+using ScsLib.HashFileSystem.Named;
 using ScsLib.Hashing;
 using System;
 using System.Collections.Generic;
@@ -14,53 +15,16 @@ namespace ScsLib.HashFileSystem.Reader
 	{
 		private static readonly string RootEntryName = string.Empty;
 
-		private static readonly IReadOnlyCollection<string> KnownDirectoryNames = new string[]
-		{
-			"automat",
-			"contentbrowser",
-			"custom",
-			"dlc",
-			"def",
-			"effect",
-			"font",
-			"locale",
-			"map",
-			"material",
-			"matlib",
-			"model",
-			"model2",
-			"m0d3l",
-			"panorama",
-			"prefab",
-			"prefab2",
-			"road_template",
-			"sound",
-			"system",
-			"ui",
-			"uilab",
-			"unit",
-			"vehicle",
-			"video"
-		};
-
-		private static readonly IReadOnlyCollection<string> KnownFileNames = new string[]
-		{
-			"base.cfg",
-			"manifest.sii",
-			"description.txt",
-			"mod_icon.jpg"
-		};
-
 		private readonly ulong _rootEntryHash;
 		private readonly IReadOnlyDictionary<ulong, string> _knownHashes;
 		private readonly IHashFsHeaderReader _hashFsHeaderReader;
 		private readonly IHashFsEntryHeaderReader _hashFsEntryHeaderReader;
 		private readonly IHashDirectoryReader _hashDirectoryReader;
 
-		public HashFsReader(ICityHash cityHash, IHashFsHeaderReader hashFsHeaderReader, IHashFsEntryHeaderReader hashFsEntryHeaderReader, IHashDirectoryReader hashDirectoryReader)
+		public HashFsReader(ICityHash cityHash, IOptions<HashFsReaderOptions> options, IHashFsHeaderReader hashFsHeaderReader, IHashFsEntryHeaderReader hashFsEntryHeaderReader, IHashDirectoryReader hashDirectoryReader)
 		{
 			_rootEntryHash = cityHash.CityHash64(RootEntryName);
-			_knownHashes = KnownDirectoryNames.Concat(KnownFileNames).ToDictionary(row => cityHash.CityHash64(row));
+			_knownHashes = options.Value.KnownDirectoryNames.Concat(options.Value.KnownFileNames).Distinct().ToDictionary(row => cityHash.CityHash64(row));
 			_hashFsHeaderReader = hashFsHeaderReader;
 			_hashFsEntryHeaderReader = hashFsEntryHeaderReader;
 			_hashDirectoryReader = hashDirectoryReader;
