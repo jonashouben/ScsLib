@@ -25,9 +25,25 @@
 			</Grid.RowDefinitions>
 			<ProgressBar Name="progress" Grid.Column="0" Grid.ColumnSpan="2" Grid.Row="0"></ProgressBar>
 			<TreeView Name="trvBrowser" Grid.Column="0" Grid.Row="1" SelectedItemChanged="trvBrowser_SelectedItemChanged">
+				<TreeView.ItemContainerStyle>
+					<Style TargetType="{x:Type TreeViewItem}">
+						<Setter Property="IsExpanded" Value="{Binding IsExpanded}" />
+					</Style>
+				</TreeView.ItemContainerStyle>
 				<TreeView.Resources>
 					<HierarchicalDataTemplate DataType="{x:Type scslibwpf:NamedHashDirectoryTree}" ItemsSource="{Binding Path=Entries}">
-						<TextBlock Text="{Binding VirtualPath}" />
+						<TextBlock Text="{Binding VirtualPath}">
+							<TextBlock.Style>
+								<Style TargetType="TextBlock">
+									<Style.Triggers>
+										<DataTrigger Binding="{Binding IsManual}" Value="True">
+											<Setter Property="Background" Value="DarkCyan" />
+											<Setter Property="Foreground" Value="White" />
+										</DataTrigger>
+									</Style.Triggers>
+								</Style>
+							</TextBlock.Style>
+						</TextBlock>
 					</HierarchicalDataTemplate>
 					<DataTemplate DataType="{x:Type scslibnamed:NamedHashFile}">
 						<TextBlock Text="{Binding VirtualPath}" />

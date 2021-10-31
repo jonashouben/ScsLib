@@ -122,25 +122,17 @@ namespace ScsLib.HashFileSystem.Reader
 		{
 			if (entries.TryGetValue(_rootEntryHash, out HashEntry? hashEntry) && hashEntry is HashDirectory directory)
 			{
-				if (directory is NamedHashDirectory namedHashDirectory)
+				return new NamedHashDirectory
 				{
-					return namedHashDirectory;
-				}
-				else
-				{
-					return new NamedHashDirectory
-					{
-						Header = directory.Header,
-						EntryNames = directory.EntryNames,
-						VirtualPath = RootEntryName
-					};
-				}
+					Header = directory.Header,
+					EntryNames = directory.EntryNames,
+					VirtualPath = RootEntryName
+				};
 			}
 			else
 			{
 				return new NamedHashDirectory
 				{
-					VirtualPath = string.Empty,
 					Header = new HashEntryHeader
 					{
 						Hash = _rootEntryHash
@@ -179,7 +171,9 @@ namespace ScsLib.HashFileSystem.Reader
 								};
 							}
 						})
-						.ToArray()
+						.ToArray(),
+					VirtualPath = RootEntryName,
+					IsManual = true
 				};
 			}
 		}

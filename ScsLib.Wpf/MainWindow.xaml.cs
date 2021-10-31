@@ -55,27 +55,29 @@ namespace ScsLib.Wpf
 
 				INamedHashDirectoryReader namedHashDirectoryReader = _services.GetRequiredService<INamedHashDirectoryReader>();
 
-				IEnumerable<INamedHashEntry> BuildTree(NamedHashDirectory namedHashDirectory)
+				NamedHashDirectoryTree BuildTree(NamedHashDirectory namedHashDirectory)
 				{
-					return namedHashDirectoryReader.Read(hashFs, namedHashDirectory).Select(row =>
+					return new NamedHashDirectoryTree
 					{
-						if (row is NamedHashDirectory currentDirectory)
+						Header = namedHashDirectory.Header,
+						VirtualPath = namedHashDirectory.VirtualPath.Length == 0 ? (namedHashDirectory.IsManual ? "(manual root)" : "(root)") : namedHashDirectory.VirtualPath,
+						IsExpanded = namedHashDirectory.VirtualPath.Length == 0,
+						Entries = namedHashDirectoryReader.Read(hashFs, namedHashDirectory).Select(row =>
 						{
-							return new NamedHashDirectoryTree
+							if (row is NamedHashDirectory currentDirectory)
 							{
-								Header = currentDirectory.Header,
-								VirtualPath = currentDirectory.VirtualPath,
-								Entries = BuildTree(currentDirectory)
-							};
-						}
-						else
-						{
-							return row;
-						}
-					});
+								return BuildTree(currentDirectory);
+							}
+							else
+							{
+								return row;
+							}
+						}),
+						IsManual = namedHashDirectory.IsManual
+					};
 				}
 
-				IReadOnlyCollection<INamedHashEntry> tree = BuildTree(hashFs.RootDirectory).ToArray();
+				NamedHashDirectoryTree tree = BuildTree(hashFs.RootDirectory);
 
 				IEnumerable<ulong> BuildHashes(IEnumerable<INamedHashEntry> tree)
 				{
@@ -93,11 +95,11 @@ namespace ScsLib.Wpf
 					}
 				}
 
-				HashSet<ulong> hashes = BuildHashes(tree).ToHashSet();
+				HashSet<ulong> hashes = BuildHashes(tree.Entries.Prepend(tree)).ToHashSet();
 
-				IReadOnlyCollection<IHashEntry> unnamed = hashFs.Entries.Where(row => row.Key != hashFs.RootDirectory.Header.Hash && !hashes.Contains(row.Key)).Select(row => row.Value).ToArray();
+				IReadOnlyCollection<IHashEntry> unnamed = hashFs.Entries.Where(row => !hashes.Contains(row.Key)).Select(row => row.Value).ToArray();
 
-				trvBrowser.ItemsSource = tree.Concat(unnamed).ToArray();
+				trvBrowser.ItemsSource = unnamed.Prepend(tree).ToArray();
 
 				progress.IsIndeterminate = false;
 			}
