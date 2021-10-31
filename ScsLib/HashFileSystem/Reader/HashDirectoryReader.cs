@@ -26,7 +26,7 @@ namespace ScsLib.HashFileSystem.Reader
 		{
 			string directoryString = await _hashEntryReader.ReadStringAsync(fileStream, hashDirectory, cancellationToken).ConfigureAwait(false);
 
-			foreach (ReadOnlySpan<char> content in directoryString.Split('\n'))
+			foreach (ReadOnlySpan<char> content in directoryString.Split('\n', StringSplitOptions.RemoveEmptyEntries))
 			{
 				if (content.StartsWith("*", StringComparison.Ordinal))
 				{
