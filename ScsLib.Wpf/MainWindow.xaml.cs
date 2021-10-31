@@ -6,6 +6,7 @@ using ScsLib.HashFileSystem.Reader;
 using ScsLib.ThreeNK;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -74,7 +75,29 @@ namespace ScsLib.Wpf
 					});
 				}
 
-				trvBrowser.ItemsSource = BuildTree(hashFs.RootDirectory);
+				IReadOnlyCollection<INamedHashEntry> tree = BuildTree(hashFs.RootDirectory).ToArray();
+
+				IEnumerable<ulong> BuildHashes(IEnumerable<INamedHashEntry> tree)
+				{
+					foreach (INamedHashEntry entry in tree)
+					{
+						yield return entry.Header.Hash;
+
+						if (entry is NamedHashDirectoryTree treeEntry)
+						{
+							foreach (ulong hash in BuildHashes(treeEntry.Entries))
+							{
+								yield return hash;
+							}
+						}
+					}
+				}
+
+				HashSet<ulong> hashes = BuildHashes(tree).ToHashSet();
+
+				IReadOnlyCollection<IHashEntry> unnamed = hashFs.Entries.Where(row => row.Key != hashFs.RootDirectory.Header.Hash && !hashes.Contains(row.Key)).Select(row => row.Value).ToArray();
+
+				trvBrowser.ItemsSource = tree.Concat(unnamed).ToArray();
 
 				progress.IsIndeterminate = false;
 			}
@@ -82,7 +105,7 @@ namespace ScsLib.Wpf
 
 		private async void trvBrowser_SelectedItemChanged(object sender, RoutedPropertyChangedEventArgs<object> e)
 		{
-			if (filePath != null && trvBrowser.SelectedItem is HashFile file)
+			if (filePath != null && trvBrowser.SelectedItem is HashEntry file)
 			{
 				progress.IsIndeterminate = true;
 

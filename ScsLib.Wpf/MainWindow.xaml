@@ -3,7 +3,8 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-		xmlns:scslib="clr-namespace:ScsLib.Wpf"
+		xmlns:scslibwpf="clr-namespace:ScsLib.Wpf"
+		xmlns:scslib="clr-namespace:ScsLib.HashFileSystem;assembly=ScsLib"
 		xmlns:scslibnamed="clr-namespace:ScsLib.HashFileSystem.Named;assembly=ScsLib"
         mc:Ignorable="d"
         Title="MainWindow" Height="450" Width="800" Closing="Window_Closing">
@@ -25,11 +26,14 @@
 			<ProgressBar Name="progress" Grid.Column="0" Grid.ColumnSpan="2" Grid.Row="0"></ProgressBar>
 			<TreeView Name="trvBrowser" Grid.Column="0" Grid.Row="1" SelectedItemChanged="trvBrowser_SelectedItemChanged">
 				<TreeView.Resources>
-					<HierarchicalDataTemplate DataType="{x:Type scslib:NamedHashDirectoryTree}" ItemsSource="{Binding Path=Entries}">
+					<HierarchicalDataTemplate DataType="{x:Type scslibwpf:NamedHashDirectoryTree}" ItemsSource="{Binding Path=Entries}">
 						<TextBlock Text="{Binding VirtualPath}" />
 					</HierarchicalDataTemplate>
 					<DataTemplate DataType="{x:Type scslibnamed:NamedHashFile}">
 						<TextBlock Text="{Binding VirtualPath}" />
+					</DataTemplate>
+					<DataTemplate DataType="{x:Type scslib:HashEntry}">
+						<TextBlock Text="{Binding Header.Hash}" />
 					</DataTemplate>
 				</TreeView.Resources>
 			</TreeView>
