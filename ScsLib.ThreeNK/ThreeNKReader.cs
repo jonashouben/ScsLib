@@ -10,7 +10,7 @@ namespace ScsLib.ThreeNK
 {
 	public class ThreeNKReader : IThreeNKReader
 	{
-		private const uint Signature = 21720627;
+		internal const uint Signature = 21720627;
 
 		private readonly IThreeNKHeaderReader _headerReader;
 		private readonly IReadOnlyDictionary<byte, byte> _decodingTable;
