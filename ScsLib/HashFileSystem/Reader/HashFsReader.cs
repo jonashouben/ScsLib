@@ -29,6 +29,7 @@ namespace ScsLib.HashFileSystem.Reader
 			"matlib",
 			"model",
 			"model2",
+			"m0d3l",
 			"panorama",
 			"prefab",
 			"prefab2",
@@ -44,7 +45,10 @@ namespace ScsLib.HashFileSystem.Reader
 
 		private static readonly IReadOnlyCollection<string> KnownFileNames = new string[]
 		{
-			"base.cfg"
+			"base.cfg",
+			"manifest.sii",
+			"description.txt",
+			"mod_icon.jpg"
 		};
 
 		private readonly ulong _rootEntryHash;
