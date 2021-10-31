@@ -17,14 +17,14 @@ namespace ScsLib.HashFileSystem.Reader
 			_hashEntryReader = hashEntryReader;
 		}
 
-		public async Task<IReadOnlyCollection<HashDirectoryEntry>> ReadAsync(FileStream fileStream, HashDirectory hashDirectory, CancellationToken cancellationToken = default)
+		public async Task<IReadOnlyCollection<HashDirectoryEntry>> ReadAsync(Stream stream, HashDirectory hashDirectory, CancellationToken cancellationToken = default)
 		{
-			return await _ReadAsync(fileStream, hashDirectory, cancellationToken).ToArrayAsync(cancellationToken).ConfigureAwait(false);
+			return await _ReadAsync(stream, hashDirectory, cancellationToken).ToArrayAsync(cancellationToken).ConfigureAwait(false);
 		}
 
-		private async IAsyncEnumerable<HashDirectoryEntry> _ReadAsync(FileStream fileStream, HashDirectory hashDirectory, [EnumeratorCancellation] CancellationToken cancellationToken)
+		private async IAsyncEnumerable<HashDirectoryEntry> _ReadAsync(Stream stream, HashDirectory hashDirectory, [EnumeratorCancellation] CancellationToken cancellationToken)
 		{
-			string directoryString = await _hashEntryReader.ReadStringAsync(fileStream, hashDirectory, cancellationToken).ConfigureAwait(false);
+			string directoryString = await _hashEntryReader.ReadStringAsync(stream, hashDirectory, cancellationToken).ConfigureAwait(false);
 
 			foreach (ReadOnlySpan<char> content in directoryString.Split('\n', StringSplitOptions.RemoveEmptyEntries))
 			{

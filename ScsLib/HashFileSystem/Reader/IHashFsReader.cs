@@ -7,6 +7,6 @@ namespace ScsLib.HashFileSystem.Reader
 	public interface IHashFsReader
 	{
 		FileStream Open(string path);
-		Task<HashFs> ReadAsync(FileStream fileStream, CancellationToken cancellationToken = default);
+		Task<HashFs> ReadAsync(Stream stream, CancellationToken cancellationToken = default);
 	}
 }

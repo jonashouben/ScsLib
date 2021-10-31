@@ -11,16 +11,16 @@ namespace ScsLib.HashFileSystem.Reader
 {
 	public class HashFsEntryHeaderReader : IHashFsEntryHeaderReader
 	{
-		public async Task<IReadOnlyCollection<HashEntryHeader>> ReadAsync(FileStream fileStream, HashFsHeader hashFsHeader, CancellationToken cancellationToken = default)
+		public async Task<IReadOnlyCollection<HashEntryHeader>> ReadAsync(Stream stream, HashFsHeader hashFsHeader, CancellationToken cancellationToken = default)
 		{
-			return await _ReadAsync(fileStream, hashFsHeader, cancellationToken).ToArrayAsync(cancellationToken).ConfigureAwait(false);
+			return await _ReadAsync(stream, hashFsHeader, cancellationToken).ToArrayAsync(cancellationToken).ConfigureAwait(false);
 		}
 
-		private static async IAsyncEnumerable<HashEntryHeader> _ReadAsync(FileStream fileStream, HashFsHeader hashFsHeader, [EnumeratorCancellation] CancellationToken cancellationToken)
+		private static async IAsyncEnumerable<HashEntryHeader> _ReadAsync(Stream stream, HashFsHeader hashFsHeader, [EnumeratorCancellation] CancellationToken cancellationToken)
 		{
-			fileStream.Seek(hashFsHeader.StartOffset, SeekOrigin.Begin);
+			stream.Seek(hashFsHeader.StartOffset, SeekOrigin.Begin);
 
-			byte[] buffer = await fileStream.ReadBytesAsync(HashEntryHeader.HeaderSize * hashFsHeader.EntryCount, cancellationToken).ConfigureAwait(false);
+			byte[] buffer = await stream.ReadBytesAsync(HashEntryHeader.HeaderSize * hashFsHeader.EntryCount, cancellationToken).ConfigureAwait(false);
 
 			using (MemoryStream ms = new MemoryStream(buffer))
 			{

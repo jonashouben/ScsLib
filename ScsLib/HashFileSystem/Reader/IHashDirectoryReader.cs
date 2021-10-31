@@ -7,6 +7,6 @@ namespace ScsLib.HashFileSystem.Reader
 {
 	public interface IHashDirectoryReader
 	{
-		Task<IReadOnlyCollection<HashDirectoryEntry>> ReadAsync(FileStream fileStream, HashDirectory hashDirectory, CancellationToken cancellationToken = default);
+		Task<IReadOnlyCollection<HashDirectoryEntry>> ReadAsync(Stream stream, HashDirectory hashDirectory, CancellationToken cancellationToken = default);
 	}
 }

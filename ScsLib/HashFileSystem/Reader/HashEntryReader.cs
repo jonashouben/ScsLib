@@ -9,26 +9,26 @@ namespace ScsLib.HashFileSystem.Reader
 {
 	public class HashEntryReader : IHashEntryReader
 	{
-		public async Task<byte[]> ReadAsync(FileStream fileStream, HashEntry hashEntry, CancellationToken cancellationToken = default)
+		public async Task<byte[]> ReadAsync(Stream stream, HashEntry hashEntry, CancellationToken cancellationToken = default)
 		{
-			fileStream.Seek(hashEntry.Header.Offset, SeekOrigin.Begin);
+			stream.Seek(hashEntry.Header.Offset, SeekOrigin.Begin);
 
 			if (hashEntry.Header.Options.HasFlag(HashEntryOption.Compressed))
 			{
-				using (InflaterInputStream inflaterInputStream = new InflaterInputStream(fileStream) { IsStreamOwner = false })
+				using (InflaterInputStream inflaterInputStream = new InflaterInputStream(stream) { IsStreamOwner = false })
 				{
 					return await inflaterInputStream.ReadBytesAsync(hashEntry.Header.Size, cancellationToken).ConfigureAwait(false);
 				}
 			}
 			else
 			{
-				return await fileStream.ReadBytesAsync(hashEntry.Header.Size, cancellationToken).ConfigureAwait(false);
+				return await stream.ReadBytesAsync(hashEntry.Header.Size, cancellationToken).ConfigureAwait(false);
 			}
 		}
 
-		public async Task<string> ReadStringAsync(FileStream fileStream, HashEntry hashEntry, CancellationToken cancellationToken = default)
+		public async Task<string> ReadStringAsync(Stream stream, HashEntry hashEntry, CancellationToken cancellationToken = default)
 		{
-			return Encoding.UTF8.GetString(await ReadAsync(fileStream, hashEntry, cancellationToken).ConfigureAwait(false));
+			return Encoding.UTF8.GetString(await ReadAsync(stream, hashEntry, cancellationToken).ConfigureAwait(false));
 		}
 	}
 }

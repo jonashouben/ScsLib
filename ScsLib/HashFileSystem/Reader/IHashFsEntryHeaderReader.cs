@@ -7,6 +7,6 @@ namespace ScsLib.HashFileSystem.Reader
 {
 	public interface IHashFsEntryHeaderReader
 	{
-		Task<IReadOnlyCollection<HashEntryHeader>> ReadAsync(FileStream fileStream, HashFsHeader hashFsHeader, CancellationToken cancellationToken = default);
+		Task<IReadOnlyCollection<HashEntryHeader>> ReadAsync(Stream stream, HashFsHeader hashFsHeader, CancellationToken cancellationToken = default);
 	}
 }

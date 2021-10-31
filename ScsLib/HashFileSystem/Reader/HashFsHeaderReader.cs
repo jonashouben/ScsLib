@@ -8,11 +8,11 @@ namespace ScsLib.HashFileSystem.Reader
 {
 	public class HashFsHeaderReader : IHashFsHeaderReader
 	{
-		public async Task<HashFsHeader> ReadAsync(FileStream fileStream, CancellationToken cancellationToken = default)
+		public async Task<HashFsHeader> ReadAsync(Stream stream, CancellationToken cancellationToken = default)
 		{
-			fileStream.Seek(0, SeekOrigin.Begin);
+			stream.Seek(0, SeekOrigin.Begin);
 
-			byte[] buffer = await fileStream.ReadBytesAsync(HashFsHeader.HeaderSize, cancellationToken).ConfigureAwait(false);
+			byte[] buffer = await stream.ReadBytesAsync(HashFsHeader.HeaderSize, cancellationToken).ConfigureAwait(false);
 
 			using (MemoryStream ms = new MemoryStream(buffer))
 			{

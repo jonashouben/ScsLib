@@ -35,17 +35,17 @@ namespace ScsLib.HashFileSystem.Reader
 			return new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.Read, 4096, FileOptions.SequentialScan | FileOptions.Asynchronous);
 		}
 
-		public async Task<HashFs> ReadAsync(FileStream fileStream, CancellationToken cancellationToken = default)
+		public async Task<HashFs> ReadAsync(Stream stream, CancellationToken cancellationToken = default)
 		{
-			HashFsHeader header = await _hashFsHeaderReader.ReadAsync(fileStream, cancellationToken).ConfigureAwait(false);
+			HashFsHeader header = await _hashFsHeaderReader.ReadAsync(stream, cancellationToken).ConfigureAwait(false);
 
 			if (header.Magic != 592659283) throw new NotSupportedException($"Magic {header.Magic} not supported!");
 			if (header.HashMethod != 1498696003) throw new NotSupportedException($"HashMethod {header.HashMethod} not supported!");
 			if (header.Version != 1) throw new NotSupportedException($"HashVersion {header.Version} not supported!");
 
-			IReadOnlyCollection<HashEntryHeader> entryHeaders = await _hashFsEntryHeaderReader.ReadAsync(fileStream, header, cancellationToken).ConfigureAwait(false);
+			IReadOnlyCollection<HashEntryHeader> entryHeaders = await _hashFsEntryHeaderReader.ReadAsync(stream, header, cancellationToken).ConfigureAwait(false);
 
-			IReadOnlyDictionary<ulong, HashEntry> entries = await ReadEntries(fileStream, entryHeaders, cancellationToken).ToDictionaryAsync(row => row.Header.Hash, cancellationToken).ConfigureAwait(false);
+			IReadOnlyDictionary<ulong, HashEntry> entries = await ReadEntries(stream, entryHeaders, cancellationToken).ToDictionaryAsync(row => row.Header.Hash, cancellationToken).ConfigureAwait(false);
 
 			NamedHashDirectory rootDirectory = GetRootDirectory(entries);
 
@@ -57,7 +57,7 @@ namespace ScsLib.HashFileSystem.Reader
 			};
 		}
 
-		internal async IAsyncEnumerable<HashEntry> ReadEntries(FileStream fileStream, IReadOnlyCollection<HashEntryHeader> entryHeaders, [EnumeratorCancellation] CancellationToken cancellationToken = default)
+		internal async IAsyncEnumerable<HashEntry> ReadEntries(Stream stream, IReadOnlyCollection<HashEntryHeader> entryHeaders, [EnumeratorCancellation] CancellationToken cancellationToken = default)
 		{
 			foreach (HashEntryHeader entryHeader in entryHeaders)
 			{
@@ -68,7 +68,7 @@ namespace ScsLib.HashFileSystem.Reader
 						Header = entryHeader
 					};
 
-					hashDirectory.EntryNames = await _hashDirectoryReader.ReadAsync(fileStream, hashDirectory, cancellationToken).ConfigureAwait(false);
+					hashDirectory.EntryNames = await _hashDirectoryReader.ReadAsync(stream, hashDirectory, cancellationToken).ConfigureAwait(false);
 
 					yield return hashDirectory;
 				}

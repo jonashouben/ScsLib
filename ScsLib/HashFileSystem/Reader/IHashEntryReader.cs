@@ -6,7 +6,7 @@ namespace ScsLib.HashFileSystem.Reader
 {
 	public interface IHashEntryReader
 	{
-		Task<byte[]> ReadAsync(FileStream fileStream, HashEntry hashEntry, CancellationToken cancellationToken = default);
-		Task<string> ReadStringAsync(FileStream fileStream, HashEntry hashEntry, CancellationToken cancellationToken = default);
+		Task<byte[]> ReadAsync(Stream stream, HashEntry hashEntry, CancellationToken cancellationToken = default);
+		Task<string> ReadStringAsync(Stream stream, HashEntry hashEntry, CancellationToken cancellationToken = default);
 	}
 }
