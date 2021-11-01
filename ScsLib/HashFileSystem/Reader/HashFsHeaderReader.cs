@@ -20,7 +20,7 @@ namespace ScsLib.HashFileSystem.Reader
 				{
 					return new HashFsHeader
 					{
-						Magic = reader.ReadUInt32(),
+						Signature = reader.ReadUInt32(),
 						Version = reader.ReadUInt16(),
 						Salt = reader.ReadUInt16(),
 						HashMethod = reader.ReadUInt32(),

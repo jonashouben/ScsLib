@@ -44,13 +44,21 @@ namespace ScsLib.Wpf
 			{
 				progress.IsIndeterminate = true;
 
-				filePath = dialog.FileName;
-
 				IHashFsReader hashFsReader = _services.GetRequiredService<IHashFsReader>();
 
-				using (FileStream fileStream = hashFsReader.Open(filePath))
+				using (FileStream fileStream = hashFsReader.Open(dialog.FileName))
 				{
-					hashFs = await hashFsReader.ReadAsync(fileStream).ConfigureAwait(true);
+					if (await hashFsReader.HasSignatureAsync(fileStream).ConfigureAwait(true))
+					{
+						hashFs = await hashFsReader.ReadAsync(fileStream).ConfigureAwait(true);
+						filePath = dialog.FileName;
+					}
+					else
+					{
+						progress.IsIndeterminate = false;
+						MessageBox.Show("This is not an scs archive. Please try opening as zip");
+						return;
+					}
 				}
 
 				INamedHashDirectoryReader namedHashDirectoryReader = _services.GetRequiredService<INamedHashDirectoryReader>();

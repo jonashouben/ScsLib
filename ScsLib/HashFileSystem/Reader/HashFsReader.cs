@@ -13,6 +13,7 @@ namespace ScsLib.HashFileSystem.Reader
 {
 	public class HashFsReader : IHashFsReader
 	{
+		private const uint Signature = 592659283;
 		private static readonly string RootEntryName = string.Empty;
 
 		private readonly ulong _rootEntryHash;
@@ -35,11 +36,16 @@ namespace ScsLib.HashFileSystem.Reader
 			return new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.Read, 4096, FileOptions.SequentialScan | FileOptions.Asynchronous);
 		}
 
+		public async Task<bool> HasSignatureAsync(Stream stream, CancellationToken cancellationToken = default)
+		{
+			return (await _hashFsHeaderReader.ReadAsync(stream, cancellationToken).ConfigureAwait(false)).Signature == Signature;
+		}
+
 		public async Task<HashFs> ReadAsync(Stream stream, CancellationToken cancellationToken = default)
 		{
 			HashFsHeader header = await _hashFsHeaderReader.ReadAsync(stream, cancellationToken).ConfigureAwait(false);
 
-			if (header.Magic != 592659283) throw new NotSupportedException($"Magic {header.Magic} not supported!");
+			if (header.Signature != Signature) throw new NotSupportedException($"Signature {header.Signature} not supported!");
 			if (header.HashMethod != 1498696003) throw new NotSupportedException($"HashMethod {header.HashMethod} not supported!");
 			if (header.Version != 1) throw new NotSupportedException($"HashVersion {header.Version} not supported!");
 
