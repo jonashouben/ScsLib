@@ -10,10 +10,12 @@ namespace ScsLib.Map.Reader
 	public class PrefabReader : IPrefabReader
 	{
 		private readonly IPrefabNodeReader _prefabNodeReader;
+		private readonly IPrefabCurveReader _prefabCurveReader;
 
-		public PrefabReader(IPrefabNodeReader prefabNodeReader)
+		public PrefabReader(IPrefabNodeReader prefabNodeReader, IPrefabCurveReader prefabCurveReader)
 		{
 			_prefabNodeReader = prefabNodeReader;
+			_prefabCurveReader = prefabCurveReader;
 		}
 
 		public async ValueTask<Prefab.Prefab> ReadAsync(Stream stream, CancellationToken cancellationToken = default)
@@ -54,6 +56,11 @@ namespace ScsLib.Map.Reader
 					nodes.Add(await _prefabNodeReader.ReadAsync(stream, cancellationToken).ConfigureAwait(false));
 				}
 				stream.Seek(navigationCurveOffset, SeekOrigin.Begin);
+				List<PrefabCurve> curves = new List<PrefabCurve>();
+				for (int i = 0; i < navigationCurveCount; i++)
+				{
+					curves.Add(await _prefabCurveReader.ReadAsync(stream, cancellationToken).ConfigureAwait(false));
+				}
 				stream.Seek(signOffset, SeekOrigin.Begin);
 				stream.Seek(semaphoreOffset, SeekOrigin.Begin);
 				stream.Seek(spawnPointOffset, SeekOrigin.Begin);
@@ -68,7 +75,8 @@ namespace ScsLib.Map.Reader
 				return new Prefab.Prefab
 				{
 					Version = version,
-					Nodes = nodes
+					Nodes = nodes,
+					NavigationCurves = curves
 				};
 			}
 		}

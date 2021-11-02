@@ -10,7 +10,9 @@ namespace ScsLib.Map
 		{
 			services.AddSingleton<ITokenConverter, TokenConverter>();
 			services.AddSingleton<IFloat3Reader, Float3Reader>();
+			services.AddSingleton<IQuaternionReader, QuaternionReader>();
 			services.AddSingleton<IPrefabNodeReader, PrefabNodeReader>();
+			services.AddSingleton<IPrefabCurveReader, PrefabCurveReader>();
 			services.AddSingleton<IPrefabReader, PrefabReader>();
 		}
 	}
