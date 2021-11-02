@@ -14,6 +14,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
+		<ProjectReference Include="..\ScsLib.Map\ScsLib.Map.csproj" />
 		<ProjectReference Include="..\ScsLib.ThreeNK\ScsLib.ThreeNK.csproj" />
 		<ProjectReference Include="..\ScsLib\ScsLib.csproj" />
 	</ItemGroup>

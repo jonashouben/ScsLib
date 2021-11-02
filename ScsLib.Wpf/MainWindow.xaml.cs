@@ -3,6 +3,8 @@ using Microsoft.Win32;
 using ScsLib.HashFileSystem;
 using ScsLib.HashFileSystem.Named;
 using ScsLib.HashFileSystem.Reader;
+using ScsLib.Map;
+using ScsLib.Map.Reader;
 using ScsLib.ThreeNK;
 using System;
 using System.Collections.Generic;
@@ -28,6 +30,7 @@ namespace ScsLib.Wpf
 			ServiceCollection services = new ServiceCollection();
 			services.AddScsLib();
 			services.AddThreeNK();
+			services.AddScsMap();
 			_services = services.BuildServiceProvider();
 			InitializeComponent();
 		}
@@ -122,6 +125,7 @@ namespace ScsLib.Wpf
 				IHashFsReader hashFsReader = _services.GetRequiredService<IHashFsReader>();
 				IHashEntryReader hashEntryReader = _services.GetRequiredService<IHashEntryReader>();
 				IThreeNKReader threeNKReader = _services.GetRequiredService<IThreeNKReader>();
+				IPrefabReader prefabReader = _services.GetRequiredService<IPrefabReader>();
 
 				using (FileStream fileStream = hashFsReader.Open(filePath))
 				{
@@ -129,13 +133,22 @@ namespace ScsLib.Wpf
 
 					using (MemoryStream ms = new MemoryStream(data))
 					{
-						if (await threeNKReader.HasSignatureAsync(ms).ConfigureAwait(true))
+						if (file is INamedHashEntry named && named.VirtualPath.EndsWith(".ppd", StringComparison.Ordinal))
 						{
-							data = await threeNKReader.ReadAsync(ms).ConfigureAwait(true);
+							var prefab = await prefabReader.ReadAsync(ms).ConfigureAwait(true);
+							trvText.Text = $@"Prefab
+Version = {prefab.Version}";
+						}
+						else
+						{
+							if (await threeNKReader.HasSignatureAsync(ms).ConfigureAwait(true))
+							{
+								data = await threeNKReader.ReadAsync(ms).ConfigureAwait(true);
+							}
+
+							trvText.Text = Encoding.UTF8.GetString(data);
 						}
 					}
-
-					trvText.Text = Encoding.UTF8.GetString(data);
 				}
 
 				progress.IsIndeterminate = false;
