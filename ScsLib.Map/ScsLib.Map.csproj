@@ -5,6 +5,7 @@
 		<Nullable>enable</Nullable>
 		<AnalysisMode>AllEnabledByDefault</AnalysisMode>
 		<WarningsAsErrors>nullable</WarningsAsErrors>
+		<LangVersion>latest</LangVersion>
   </PropertyGroup>
 
   <ItemGroup>
