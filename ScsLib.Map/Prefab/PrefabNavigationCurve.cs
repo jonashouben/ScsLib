@@ -5,7 +5,7 @@ using System.Collections.Generic;
 namespace ScsLib.Map.Prefab
 {
 	[BinarySerializable]
-	public class PrefabCurve
+	public class PrefabNavigationCurve
 	{
 		[BinaryPosition(0)]
 		public Token Name { get; internal set; } = default!;

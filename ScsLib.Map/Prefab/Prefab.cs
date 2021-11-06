@@ -11,10 +11,10 @@ namespace ScsLib.Map.Prefab
 		public uint Version { get; internal set; }
 
 		public IReadOnlyCollection<PrefabNode> Nodes { get; internal set; } = Array.Empty<PrefabNode>();
-		public IReadOnlyCollection<PrefabCurve> NavigationCurves { get; internal set; } = Array.Empty<PrefabCurve>();
-		public IReadOnlyCollection<object> Signs { get; internal set; } = Array.Empty<object>();
-		public IReadOnlyCollection<object> Semaphores { get; internal set; } = Array.Empty<object>();
-		public IReadOnlyCollection<object> SpawnPoints { get; internal set; } = Array.Empty<object>();
+		public IReadOnlyCollection<PrefabNavigationCurve> NavigationCurves { get; internal set; } = Array.Empty<PrefabNavigationCurve>();
+		public IReadOnlyCollection<PrefabSign> Signs { get; internal set; } = Array.Empty<PrefabSign>();
+		public IReadOnlyCollection<PrefabSemaphore> Semaphores { get; internal set; } = Array.Empty<PrefabSemaphore>();
+		public IReadOnlyCollection<PrefabSpawnPoint> SpawnPoints { get; internal set; } = Array.Empty<PrefabSpawnPoint>();
 		public IReadOnlyCollection<object> MapPoints { get; internal set; } = Array.Empty<object>();
 		public IReadOnlyCollection<object> TriggerPoints { get; internal set; } = Array.Empty<object>();
 		public IReadOnlyCollection<object> Intersections { get; internal set; } = Array.Empty<object>();

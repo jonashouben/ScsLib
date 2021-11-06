@@ -57,16 +57,37 @@ namespace ScsLib.Map.Reader
 				prefab.Nodes = nodes;
 
 				stream.Seek(navigationCurveOffset, SeekOrigin.Begin);
-				List<PrefabCurve> curves = new List<PrefabCurve>();
+				List<PrefabNavigationCurve> curves = new List<PrefabNavigationCurve>();
 				for (uint i = 0; i < navigationCurveCount; i++)
 				{
-					curves.Add(await _binarySerializer.DeserializeAsync<PrefabCurve>(reader, cancellationToken).ConfigureAwait(false));
+					curves.Add(await _binarySerializer.DeserializeAsync<PrefabNavigationCurve>(reader, cancellationToken).ConfigureAwait(false));
 				}
 				prefab.NavigationCurves = curves;
 
 				stream.Seek(signOffset, SeekOrigin.Begin);
+				List<PrefabSign> signs = new List<PrefabSign>();
+				for (uint i = 0; i < signCount; i++)
+				{
+					signs.Add(await _binarySerializer.DeserializeAsync<PrefabSign>(reader, cancellationToken).ConfigureAwait(false));
+				}
+				prefab.Signs = signs;
+
 				stream.Seek(semaphoreOffset, SeekOrigin.Begin);
+				List<PrefabSemaphore> semaphores = new List<PrefabSemaphore>();
+				for (uint i = 0; i < semaphoreCount; i++)
+				{
+					semaphores.Add(await _binarySerializer.DeserializeAsync<PrefabSemaphore>(reader, cancellationToken).ConfigureAwait(false));
+				}
+				prefab.Semaphores = semaphores;
+
 				stream.Seek(spawnPointOffset, SeekOrigin.Begin);
+				List<PrefabSpawnPoint> spawnPoints = new List<PrefabSpawnPoint>();
+				for (uint i = 0; i < spawnPointCount; i++)
+				{
+					spawnPoints.Add(await _binarySerializer.DeserializeAsync<PrefabSpawnPoint>(reader, cancellationToken).ConfigureAwait(false));
+				}
+				prefab.SpawnPoints = spawnPoints;
+
 				stream.Seek(terrainPointPosOffset, SeekOrigin.Begin);
 				stream.Seek(terrainPointNormalOffset, SeekOrigin.Begin);
 				stream.Seek(terrainPointVariantOffset, SeekOrigin.Begin);
