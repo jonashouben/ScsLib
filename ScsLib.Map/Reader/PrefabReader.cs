@@ -1,6 +1,6 @@
 ﻿using ScsLib.Map.Prefab;
-using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -9,9 +9,9 @@ namespace ScsLib.Map.Reader
 {
 	public class PrefabReader : IPrefabReader
 	{
-		private readonly BinarySerializer _binarySerializer;
+		private readonly IBinarySerializer _binarySerializer;
 
-		public PrefabReader(BinarySerializer binarySerializer)
+		public PrefabReader(IBinarySerializer binarySerializer)
 		{
 			_binarySerializer = binarySerializer;
 		}
@@ -22,79 +22,30 @@ namespace ScsLib.Map.Reader
 
 			using (BinaryReader reader = new BinaryReader(stream, Encoding.UTF8, true))
 			{
-				Prefab.Prefab prefab = await _binarySerializer.DeserializeAsync<Prefab.Prefab>(reader, cancellationToken).ConfigureAwait(false);
+				Prefab.Prefab prefab = _binarySerializer.Deserialize<Prefab.Prefab>(reader);
 
-				uint nodeCount = reader.ReadUInt32();
-				uint navigationCurveCount = reader.ReadUInt32();
-				uint signCount = reader.ReadUInt32();
-				uint semaphoreCount = reader.ReadUInt32();
-				uint spawnPointCount = reader.ReadUInt32();
-				uint terrainPointCount = reader.ReadUInt32();
-				uint terrainPointVariantCount = reader.ReadUInt32();
-				uint mapPointCount = reader.ReadUInt32();
-				uint triggerPointCount = reader.ReadUInt32();
-				uint intersectionCount = reader.ReadUInt32();
-				uint navigationNodeCount = reader.ReadUInt32();
-				uint nodeOffset = reader.ReadUInt32();
-				uint navigationCurveOffset = reader.ReadUInt32();
-				uint signOffset = reader.ReadUInt32();
-				uint semaphoreOffset = reader.ReadUInt32();
-				uint spawnPointOffset = reader.ReadUInt32();
-				uint terrainPointPosOffset = reader.ReadUInt32();
-				uint terrainPointNormalOffset = reader.ReadUInt32();
-				uint terrainPointVariantOffset = reader.ReadUInt32();
-				uint mapPointOffset = reader.ReadUInt32();
-				uint triggerPointOffset = reader.ReadUInt32();
-				uint intersectionOffset = reader.ReadUInt32();
-				uint navigationNodeOffset = reader.ReadUInt32();
+				stream.Seek(prefab.Header.NodeOffset, SeekOrigin.Begin);
+				prefab.Nodes = _binarySerializer.DeserializeMany<PrefabNode>(reader, prefab.Header.NodeCount).ToArray();
 
-				stream.Seek(nodeOffset, SeekOrigin.Begin);
-				List<PrefabNode> nodes = new List<PrefabNode>();
-				for (uint i = 0; i < nodeCount; i++)
-				{
-					nodes.Add(await _binarySerializer.DeserializeAsync<PrefabNode>(reader, cancellationToken).ConfigureAwait(false));
-				}
-				prefab.Nodes = nodes;
+				stream.Seek(prefab.Header.NavigationCurveOffset, SeekOrigin.Begin);
+				prefab.NavigationCurves = _binarySerializer.DeserializeMany<PrefabNavigationCurve>(reader, prefab.Header.NavigationCurveCount).ToArray();
 
-				stream.Seek(navigationCurveOffset, SeekOrigin.Begin);
-				List<PrefabNavigationCurve> curves = new List<PrefabNavigationCurve>();
-				for (uint i = 0; i < navigationCurveCount; i++)
-				{
-					curves.Add(await _binarySerializer.DeserializeAsync<PrefabNavigationCurve>(reader, cancellationToken).ConfigureAwait(false));
-				}
-				prefab.NavigationCurves = curves;
+				stream.Seek(prefab.Header.SignOffset, SeekOrigin.Begin);
+				prefab.Signs = _binarySerializer.DeserializeMany<PrefabSign>(reader, prefab.Header.SignCount).ToArray();
 
-				stream.Seek(signOffset, SeekOrigin.Begin);
-				List<PrefabSign> signs = new List<PrefabSign>();
-				for (uint i = 0; i < signCount; i++)
-				{
-					signs.Add(await _binarySerializer.DeserializeAsync<PrefabSign>(reader, cancellationToken).ConfigureAwait(false));
-				}
-				prefab.Signs = signs;
+				stream.Seek(prefab.Header.SemaphoreOffset, SeekOrigin.Begin);
+				prefab.Semaphores = _binarySerializer.DeserializeMany<PrefabSemaphore>(reader, prefab.Header.SemaphoreCount).ToArray();
 
-				stream.Seek(semaphoreOffset, SeekOrigin.Begin);
-				List<PrefabSemaphore> semaphores = new List<PrefabSemaphore>();
-				for (uint i = 0; i < semaphoreCount; i++)
-				{
-					semaphores.Add(await _binarySerializer.DeserializeAsync<PrefabSemaphore>(reader, cancellationToken).ConfigureAwait(false));
-				}
-				prefab.Semaphores = semaphores;
+				stream.Seek(prefab.Header.SpawnPointOffset, SeekOrigin.Begin);
+				prefab.SpawnPoints = _binarySerializer.DeserializeMany<PrefabSpawnPoint>(reader, prefab.Header.SpawnPointCount).ToArray();
 
-				stream.Seek(spawnPointOffset, SeekOrigin.Begin);
-				List<PrefabSpawnPoint> spawnPoints = new List<PrefabSpawnPoint>();
-				for (uint i = 0; i < spawnPointCount; i++)
-				{
-					spawnPoints.Add(await _binarySerializer.DeserializeAsync<PrefabSpawnPoint>(reader, cancellationToken).ConfigureAwait(false));
-				}
-				prefab.SpawnPoints = spawnPoints;
-
-				stream.Seek(terrainPointPosOffset, SeekOrigin.Begin);
-				stream.Seek(terrainPointNormalOffset, SeekOrigin.Begin);
-				stream.Seek(terrainPointVariantOffset, SeekOrigin.Begin);
-				stream.Seek(mapPointOffset, SeekOrigin.Begin);
-				stream.Seek(triggerPointOffset, SeekOrigin.Begin);
-				stream.Seek(intersectionOffset, SeekOrigin.Begin);
-				stream.Seek(navigationNodeOffset, SeekOrigin.Begin);
+				stream.Seek(prefab.Header.TerrainPointPosOffset, SeekOrigin.Begin);
+				stream.Seek(prefab.Header.TerrainPointNormalOffset, SeekOrigin.Begin);
+				stream.Seek(prefab.Header.TerrainPointVariantOffset, SeekOrigin.Begin);
+				stream.Seek(prefab.Header.MapPointOffset, SeekOrigin.Begin);
+				stream.Seek(prefab.Header.TriggerPointOffset, SeekOrigin.Begin);
+				stream.Seek(prefab.Header.IntersectionOffset, SeekOrigin.Begin);
+				stream.Seek(prefab.Header.NavigationNodeOffset, SeekOrigin.Begin);
 
 				return prefab;
 			}

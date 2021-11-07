@@ -5,12 +5,10 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace ScsLib.Map.Reader
 {
-	public class BinarySerializer
+	public class BinarySerializer : IBinarySerializer
 	{
 		class BinaryProperty
 		{
@@ -42,12 +40,20 @@ namespace ScsLib.Map.Reader
 			_tokenConverter = tokenConverter;
 		}
 
-		public async ValueTask<T> DeserializeAsync<T>(BinaryReader reader, CancellationToken cancellationToken = default) where T : new()
+		public T Deserialize<T>(BinaryReader reader) where T : new()
 		{
-			return (T) await DeserializeAsyncInternal(typeof(T), reader, cancellationToken).ConfigureAwait(false);
+			return (T) DeserializeAsyncInternal(typeof(T), reader);
 		}
 
-		private async ValueTask<object> DeserializeAsyncInternalSimple(TypeCode typeCode, BinaryReader reader, CancellationToken cancellationToken = default)
+		public IEnumerable<T> DeserializeMany<T>(BinaryReader reader, uint count) where T : new()
+		{
+			for (int i = 0; i < count; i++)
+			{
+				yield return Deserialize<T>(reader);
+			}
+		}
+
+		private object DeserializeAsyncInternalSimple(TypeCode typeCode, BinaryReader reader)
 		{
 			switch (typeCode)
 			{
@@ -74,7 +80,7 @@ namespace ScsLib.Map.Reader
 			}
 		}
 
-		private async ValueTask<object> DeserializeAsyncInternal(Type type, BinaryReader reader, CancellationToken cancellationToken = default)
+		private object DeserializeAsyncInternal(Type type, BinaryReader reader)
 		{
 			if (_typeProperties.TryGetValue(type, out IReadOnlyCollection<BinaryProperty>? properties))
 			{
@@ -106,7 +112,7 @@ namespace ScsLib.Map.Reader
 
 								for (int i = 0; i < length; i++)
 								{
-									array.SetValue(await DeserializeAsyncInternal(propertyElementType, reader, cancellationToken).ConfigureAwait(false), i);
+									array.SetValue(DeserializeAsyncInternal(propertyElementType, reader), i);
 								}
 
 								property.Property.SetValue(obj, array);
@@ -121,12 +127,12 @@ namespace ScsLib.Map.Reader
 								}
 								else
 								{
-									property.Property.SetValue(obj, await DeserializeAsyncInternal(propertyType, reader, cancellationToken).ConfigureAwait(false));
+									property.Property.SetValue(obj, DeserializeAsyncInternal(propertyType, reader));
 								}
 								break;
 							}
 						default:
-							property.Property.SetValue(obj, await DeserializeAsyncInternalSimple(propertyTypeCode, reader, cancellationToken).ConfigureAwait(false));
+							property.Property.SetValue(obj, DeserializeAsyncInternalSimple(propertyTypeCode, reader));
 							break;
 					}
 				}
@@ -135,7 +141,7 @@ namespace ScsLib.Map.Reader
 			}
 			else
 			{
-				return await DeserializeAsyncInternalSimple(Type.GetTypeCode(type), reader, cancellationToken).ConfigureAwait(false);
+				return DeserializeAsyncInternalSimple(Type.GetTypeCode(type), reader);
 			}
 		}
 	}

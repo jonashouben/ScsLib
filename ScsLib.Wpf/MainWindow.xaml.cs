@@ -137,7 +137,7 @@ namespace ScsLib.Wpf
 						{
 							var prefab = await prefabReader.ReadAsync(ms).ConfigureAwait(true);
 							trvText.Text = $@"Prefab
-Version = {prefab.Version}";
+Version = {prefab.Header.Version}";
 						}
 						else
 						{

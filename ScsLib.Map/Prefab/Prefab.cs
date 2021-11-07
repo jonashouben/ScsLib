@@ -8,8 +8,7 @@ namespace ScsLib.Map.Prefab
 	public class Prefab
 	{
 		[BinaryPosition(0)]
-		public uint Version { get; internal set; }
-
+		public PrefabHeader Header { get; internal set; } = default!;
 		public IReadOnlyCollection<PrefabNode> Nodes { get; internal set; } = Array.Empty<PrefabNode>();
 		public IReadOnlyCollection<PrefabNavigationCurve> NavigationCurves { get; internal set; } = Array.Empty<PrefabNavigationCurve>();
 		public IReadOnlyCollection<PrefabSign> Signs { get; internal set; } = Array.Empty<PrefabSign>();

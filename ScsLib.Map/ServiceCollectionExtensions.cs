@@ -8,7 +8,7 @@ namespace ScsLib.Map
 	{
 		public static void AddScsMap(this IServiceCollection services)
 		{
-			services.AddSingleton<BinarySerializer>();
+			services.AddSingleton<IBinarySerializer, BinarySerializer>();
 			services.AddSingleton<ITokenConverter, TokenConverter>();
 			services.AddSingleton<IPrefabReader, PrefabReader>();
 		}
