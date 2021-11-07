@@ -46,6 +46,8 @@ namespace ScsLib.Map.Reader
 				prefab.MapPoints = _binarySerializer.DeserializeMany<PrefabMapPoint>(reader, prefab.Header.MapPointCount).ToArray();
 
 				stream.Seek(prefab.Header.TriggerPointOffset, SeekOrigin.Begin);
+				prefab.TriggerPoints = _binarySerializer.DeserializeMany<PrefabTriggerPoint>(reader, prefab.Header.TriggerPointCount).ToArray();
+
 				stream.Seek(prefab.Header.IntersectionOffset, SeekOrigin.Begin);
 				stream.Seek(prefab.Header.NavigationNodeOffset, SeekOrigin.Begin);
 
