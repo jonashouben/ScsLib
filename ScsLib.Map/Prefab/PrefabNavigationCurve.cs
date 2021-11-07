@@ -11,7 +11,7 @@ namespace ScsLib.Map.Prefab
 		public Token Name { get; internal set; } = default!;
 
 		[BinaryPosition(1)]
-		public uint Flags { get; internal set; }
+		public PrefabNavigationCurveOption Options { get; internal set; }
 
 		[BinaryPosition(2)]
 		public byte EndNode { get; internal set; }
