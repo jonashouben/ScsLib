@@ -43,6 +43,8 @@ namespace ScsLib.Map.Reader
 				stream.Seek(prefab.Header.TerrainPointNormalOffset, SeekOrigin.Begin);
 				stream.Seek(prefab.Header.TerrainPointVariantOffset, SeekOrigin.Begin);
 				stream.Seek(prefab.Header.MapPointOffset, SeekOrigin.Begin);
+				prefab.MapPoints = _binarySerializer.DeserializeMany<PrefabMapPoint>(reader, prefab.Header.MapPointCount).ToArray();
+
 				stream.Seek(prefab.Header.TriggerPointOffset, SeekOrigin.Begin);
 				stream.Seek(prefab.Header.IntersectionOffset, SeekOrigin.Begin);
 				stream.Seek(prefab.Header.NavigationNodeOffset, SeekOrigin.Begin);
