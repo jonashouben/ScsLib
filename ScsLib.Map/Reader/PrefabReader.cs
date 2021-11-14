@@ -39,9 +39,15 @@ namespace ScsLib.Map.Reader
 				stream.Seek(prefab.Header.SpawnPointOffset, SeekOrigin.Begin);
 				prefab.SpawnPoints = _binarySerializer.DeserializeMany<PrefabSpawnPoint>(reader, prefab.Header.SpawnPointCount).ToArray();
 
-				stream.Seek(prefab.Header.TerrainPointPosOffset, SeekOrigin.Begin);
-				stream.Seek(prefab.Header.TerrainPointNormalOffset, SeekOrigin.Begin);
-				stream.Seek(prefab.Header.TerrainPointVariantOffset, SeekOrigin.Begin);
+				// TODO
+				// stream.Seek(prefab.Header.TerrainPointPosOffset, SeekOrigin.Begin);
+
+				// TODO
+				// stream.Seek(prefab.Header.TerrainPointNormalOffset, SeekOrigin.Begin);
+
+				// TODO
+				// stream.Seek(prefab.Header.TerrainPointVariantOffset, SeekOrigin.Begin);
+				
 				stream.Seek(prefab.Header.MapPointOffset, SeekOrigin.Begin);
 				prefab.MapPoints = _binarySerializer.DeserializeMany<PrefabMapPoint>(reader, prefab.Header.MapPointCount).ToArray();
 
