@@ -4,6 +4,7 @@ using System.Collections.Generic;
 
 namespace ScsLib.Map.SectorItem
 {
+	[BinarySerializable]
 	public class CutPlaneSectorItem : AbstractSectorItem
 	{
 		[BinaryPosition(EndPosition + 1)]

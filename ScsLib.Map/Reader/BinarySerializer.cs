@@ -90,6 +90,8 @@ namespace ScsLib.Reader
 
 						switch (sectorItemType)
 						{
+							case SectorItemType.City:
+								return Deserialize<CitySectorItem>(reader);
 							case SectorItemType.CutPlane:
 								return Deserialize<CutPlaneSectorItem>(reader);
 							default:
