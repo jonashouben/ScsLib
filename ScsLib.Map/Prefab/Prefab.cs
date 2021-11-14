@@ -17,6 +17,6 @@ namespace ScsLib.Map.Prefab
 		public IReadOnlyCollection<PrefabMapPoint> MapPoints { get; internal set; } = Array.Empty<PrefabMapPoint>();
 		public IReadOnlyCollection<PrefabTriggerPoint> TriggerPoints { get; internal set; } = Array.Empty<PrefabTriggerPoint>();
 		public IReadOnlyCollection<PrefabIntersection> Intersections { get; internal set; } = Array.Empty<PrefabIntersection>();
-		public IReadOnlyCollection<object> NavigationNodes { get; internal set; } = Array.Empty<object>();
+		public IReadOnlyCollection<PrefabNavigationNode> NavigationNodes { get; internal set; } = Array.Empty<PrefabNavigationNode>();
 	}
 }

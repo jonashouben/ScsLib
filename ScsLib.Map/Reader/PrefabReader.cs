@@ -52,6 +52,7 @@ namespace ScsLib.Map.Reader
 				prefab.Intersections = _binarySerializer.DeserializeMany<PrefabIntersection>(reader, prefab.Header.IntersectionCount).ToArray();
 
 				stream.Seek(prefab.Header.NavigationNodeOffset, SeekOrigin.Begin);
+				prefab.NavigationNodes = _binarySerializer.DeserializeMany<PrefabNavigationNode>(reader, prefab.Header.NavigationNodeCount).ToArray();
 
 				return prefab;
 			}
