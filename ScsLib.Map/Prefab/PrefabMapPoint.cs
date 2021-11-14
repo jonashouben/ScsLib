@@ -2,7 +2,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace ScsLib.Map.Prefab
+namespace ScsLib.Prefab
 {
 	[BinarySerializable]
 	public class PrefabMapPoint

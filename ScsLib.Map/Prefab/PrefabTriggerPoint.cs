@@ -3,7 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace ScsLib.Map.Prefab
+namespace ScsLib.Prefab
 {
 	[BinarySerializable]
 	public class PrefabTriggerPoint

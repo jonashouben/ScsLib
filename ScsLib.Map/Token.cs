@@ -1,4 +1,4 @@
-﻿namespace ScsLib.Map
+﻿namespace ScsLib
 {
 	public class Token
 	{

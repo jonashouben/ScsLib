@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace ScsLib.Map.Converter
+namespace ScsLib.Converter
 {
 	public class TokenConverter : ITokenConverter
 	{
@@ -61,11 +61,11 @@ namespace ScsLib.Map.Converter
 		{
 			while (token != 0)
 			{
-				ulong remaining = token % (ulong) _letters.Length;
+				ulong remaining = token % (ulong)_letters.Length;
 
 				yield return _letters[remaining];
 
-				token /= (ulong) _letters.Length;
+				token /= (ulong)_letters.Length;
 			}
 		}
 	}

@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace ScsLib.Map.Reader
+namespace ScsLib.Reader
 {
 	[AttributeUsage(AttributeTargets.Class)]
 	public sealed class BinarySerializableAttribute : Attribute

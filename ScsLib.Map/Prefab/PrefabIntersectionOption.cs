@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace ScsLib.Map.Prefab
+namespace ScsLib.Prefab
 {
 	[Flags]
 	public enum PrefabIntersectionOption

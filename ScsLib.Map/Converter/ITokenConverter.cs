@@ -1,4 +1,4 @@
-﻿namespace ScsLib.Map.Converter
+﻿namespace ScsLib.Converter
 {
 	public interface ITokenConverter
 	{

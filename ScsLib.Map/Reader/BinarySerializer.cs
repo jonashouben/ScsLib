@@ -1,4 +1,4 @@
-﻿using ScsLib.Map.Converter;
+﻿using ScsLib.Converter;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -7,7 +7,7 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 
-namespace ScsLib.Map.Reader
+namespace ScsLib.Reader
 {
 	public class BinarySerializer : IBinarySerializer
 	{
@@ -45,7 +45,7 @@ namespace ScsLib.Map.Reader
 
 		public T Deserialize<T>(BinaryReader reader) where T : new()
 		{
-			return (T) DeserializeInternal(typeof(T), reader);
+			return (T)DeserializeInternal(typeof(T), reader);
 		}
 
 		public IEnumerable<T> DeserializeMany<T>(BinaryReader reader, uint count) where T : new()
@@ -109,7 +109,7 @@ namespace ScsLib.Map.Reader
 								{
 									if (property.DynamicArray == null) throw new ArgumentException("Dynamic Array without Attribute!");
 
-									length = (int) Convert.ChangeType(DeserializeInternalSimple(property.DynamicArray.LengthTypeCode, reader), typeof(int), CultureInfo.InvariantCulture);
+									length = (int)Convert.ChangeType(DeserializeInternalSimple(property.DynamicArray.LengthTypeCode, reader), typeof(int), CultureInfo.InvariantCulture);
 
 									if (property.DynamicArray.IgnoreLength != 0 && property.DynamicArray.IgnoreLength == length)
 									{

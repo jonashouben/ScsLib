@@ -1,8 +1,8 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
-using ScsLib.Map.Converter;
-using ScsLib.Map.Reader;
+using ScsLib.Converter;
+using ScsLib.Reader;
 
-namespace ScsLib.Map
+namespace ScsLib
 {
 	public static class ServiceCollectionExtensions
 	{

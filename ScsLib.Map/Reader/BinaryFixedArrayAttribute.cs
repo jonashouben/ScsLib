@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace ScsLib.Map.Reader
+namespace ScsLib.Reader
 {
 	[AttributeUsage(AttributeTargets.Property)]
 	public sealed class BinaryFixedArrayAttribute : Attribute

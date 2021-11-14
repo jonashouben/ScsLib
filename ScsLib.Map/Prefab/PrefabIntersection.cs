@@ -1,6 +1,6 @@
 ﻿using ScsLib.Map.Reader;
 
-namespace ScsLib.Map.Prefab
+namespace ScsLib.Prefab
 {
 	[BinarySerializable]
 	public class PrefabIntersection

@@ -1,6 +1,6 @@
 ﻿using ScsLib.Map.Reader;
 
-namespace ScsLib.Map
+namespace ScsLib
 {
 	[BinarySerializable]
 	public class Float3

@@ -2,7 +2,7 @@
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace ScsLib.Map.Reader
+namespace ScsLib.Reader
 {
 	public interface IPrefabReader
 	{

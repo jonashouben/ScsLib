@@ -1,11 +1,11 @@
-﻿using ScsLib.Map.Prefab;
+﻿using ScsLib.Prefab;
 using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace ScsLib.Map.Reader
+namespace ScsLib.Reader
 {
 	public class PrefabReader : IPrefabReader
 	{
@@ -47,7 +47,7 @@ namespace ScsLib.Map.Reader
 
 				// TODO
 				// stream.Seek(prefab.Header.TerrainPointVariantOffset, SeekOrigin.Begin);
-				
+
 				stream.Seek(prefab.Header.MapPointOffset, SeekOrigin.Begin);
 				prefab.MapPoints = _binarySerializer.DeserializeMany<PrefabMapPoint>(reader, prefab.Header.MapPointCount).ToArray();
 

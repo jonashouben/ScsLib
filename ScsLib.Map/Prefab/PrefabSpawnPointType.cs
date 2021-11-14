@@ -1,4 +1,4 @@
-﻿namespace ScsLib.Map.Prefab
+﻿namespace ScsLib.Prefab
 {
 	public enum PrefabSpawnPointType
 	{
