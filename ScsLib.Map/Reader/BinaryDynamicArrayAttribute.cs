@@ -5,12 +5,12 @@ namespace ScsLib.Reader
 	[AttributeUsage(AttributeTargets.Property)]
 	public sealed class BinaryDynamicArrayAttribute : Attribute
 	{
-		public TypeCode LengthTypeCode { get; }
+		public Type LengthType { get; }
 		public int FixedLength { get; }
 
-		public BinaryDynamicArrayAttribute(TypeCode lengthTypeCode, int fixedLength = 0)
+		public BinaryDynamicArrayAttribute(Type lengthType, int fixedLength = 0)
 		{
-			LengthTypeCode = lengthTypeCode;
+			LengthType = lengthType;
 			FixedLength = fixedLength;
 		}
 	}

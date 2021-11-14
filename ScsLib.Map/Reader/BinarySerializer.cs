@@ -1,4 +1,5 @@
 ﻿using ScsLib.Converter;
+using ScsLib.Map.SectorItem;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -56,9 +57,9 @@ namespace ScsLib.Reader
 			}
 		}
 
-		private object DeserializeInternalSimple(TypeCode typeCode, BinaryReader reader)
+		private object DeserializeInternalSimple(Type type, BinaryReader reader)
 		{
-			switch (typeCode)
+			switch (Type.GetTypeCode(type))
 			{
 				case TypeCode.Byte:
 					return reader.ReadByte();
@@ -78,9 +79,28 @@ namespace ScsLib.Reader
 					return reader.ReadUInt32();
 				case TypeCode.UInt64:
 					return reader.ReadUInt64();
-				default:
-					throw new NotSupportedException($"TypeCode {typeCode} not supported!");
+				case TypeCode.Object:
+					if (type == typeof(Token))
+					{
+						return _tokenConverter.FromToken(reader.ReadUInt64());
+					}
+					else if (type == typeof(AbstractSectorItem))
+					{
+						SectorItemType sectorItemType = (SectorItemType)reader.ReadUInt32();
+
+						switch (sectorItemType)
+						{
+							case SectorItemType.CutPlane:
+								return Deserialize<CutPlaneSectorItem>(reader);
+							default:
+								throw new NotSupportedException($"SectorItemType {sectorItemType} not supported!");
+						}
+					}
+
+					break;
 			}
+
+			throw new NotSupportedException($"Type {type.Name} not supported!");
 		}
 
 		private object DeserializeInternal(Type type, BinaryReader reader)
@@ -111,7 +131,7 @@ namespace ScsLib.Reader
 								{
 									if (property.DynamicArray == null) throw new ArgumentException("Dynamic Array without Attribute!");
 
-									length = (int)Convert.ChangeType(DeserializeInternalSimple(property.DynamicArray.LengthTypeCode, reader), typeof(int), CultureInfo.InvariantCulture);
+									length = (int)Convert.ChangeType(DeserializeInternalSimple(property.DynamicArray.LengthType, reader), typeof(int), CultureInfo.InvariantCulture);
 									
 									if (property.DynamicArray.FixedLength != 0)
 									{
@@ -147,18 +167,11 @@ namespace ScsLib.Reader
 							}
 							else
 							{
-								if (propertyType == typeof(Token))
-								{
-									property.Property.SetValue(obj, _tokenConverter.FromToken(reader.ReadUInt64()));
-								}
-								else
-								{
-									property.Property.SetValue(obj, DeserializeInternal(propertyType, reader));
-								}
+								property.Property.SetValue(obj, DeserializeInternal(propertyType, reader));
 								break;
 							}
 						default:
-							property.Property.SetValue(obj, DeserializeInternalSimple(propertyTypeCode, reader));
+							property.Property.SetValue(obj, DeserializeInternalSimple(propertyType, reader));
 							break;
 					}
 				}
@@ -167,7 +180,7 @@ namespace ScsLib.Reader
 			}
 			else
 			{
-				return DeserializeInternalSimple(Type.GetTypeCode(type), reader);
+				return DeserializeInternalSimple(type, reader);
 			}
 		}
 	}

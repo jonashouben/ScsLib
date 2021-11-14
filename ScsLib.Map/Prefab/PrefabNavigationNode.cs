@@ -13,7 +13,7 @@ namespace ScsLib.Prefab
 		[BinaryPosition(1)]
 		public ushort Index { get; internal set; }
 
-		[BinaryDynamicArray(TypeCode.Byte, 4)]
+		[BinaryDynamicArray(typeof(byte), 4)]
 		[BinaryPosition(2)]
 		public IReadOnlyCollection<PrefabNavigationNodeConnection> Connections { get; internal set; } = Array.Empty<PrefabNavigationNodeConnection>();
 	}

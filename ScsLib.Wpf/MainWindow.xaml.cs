@@ -127,6 +127,7 @@ namespace ScsLib.Wpf
 				IPrefabReader prefabReader = _services.GetRequiredService<IPrefabReader>();
 				IMbdReader mbdReader = _services.GetRequiredService<IMbdReader>();
 				ISectorDescriptionReader sectorDescriptionReader = _services.GetRequiredService<ISectorDescriptionReader>();
+				ISectorReader sectorReader = _services.GetRequiredService<ISectorReader>();
 
 				using (FileStream fileStream = hashFsReader.Open(filePath))
 				{
@@ -156,6 +157,14 @@ EditorMapId = {mbd.EditorMapId}";
 							trvText.Text = $@"Sector Description
 Version = {sectorDescription.Version}
 Climate Profile = {sectorDescription.ClimateProfile.StringValue}";
+						}
+						else if (named?.VirtualPath?.EndsWith(".aux", StringComparison.Ordinal) == true || named?.VirtualPath?.EndsWith(".base", StringComparison.Ordinal) == true)
+						{
+							var sector = await sectorReader.ReadAsync(ms).ConfigureAwait(true);
+							trvText.Text = $@"Sector
+CoreMapVersion = {sector.CoreMapVersion}
+GameId = {sector.GameId.StringValue}
+GameMapVersion = {sector.GameMapVersion}";
 						}
 						else
 						{
