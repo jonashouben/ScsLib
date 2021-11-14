@@ -1,4 +1,4 @@
-﻿using ScsLib.Map.Reader;
+﻿using ScsLib.Reader;
 using System;
 using System.Collections.Generic;
 

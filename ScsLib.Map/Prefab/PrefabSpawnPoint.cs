@@ -1,4 +1,4 @@
-﻿using ScsLib.Map.Reader;
+﻿using ScsLib.Reader;
 
 namespace ScsLib.Prefab
 {
