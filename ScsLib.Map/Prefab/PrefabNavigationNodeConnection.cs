@@ -14,7 +14,7 @@ namespace ScsLib.Prefab
 		public float Length { get; internal set; }
 
 		[BinaryPosition(2)]
-		[BinaryDynamicArray(TypeCode.Byte, 255)]
+		[BinaryDynamicArray(TypeCode.Byte, 8)]
 		public IReadOnlyCollection<ushort> Curves { get; internal set; } = Array.Empty<ushort>();
 	}
 }

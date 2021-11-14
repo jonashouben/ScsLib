@@ -100,29 +100,45 @@ namespace ScsLib.Reader
 							if (typeof(IEnumerable).IsAssignableFrom(propertyType))
 							{
 								int length = 0;
+								int fixedLength = 0;
 
 								if (property.FixedArray != null)
 								{
 									length = property.FixedArray.Length;
+									fixedLength = length;
 								}
 								else
 								{
 									if (property.DynamicArray == null) throw new ArgumentException("Dynamic Array without Attribute!");
 
 									length = (int)Convert.ChangeType(DeserializeInternalSimple(property.DynamicArray.LengthTypeCode, reader), typeof(int), CultureInfo.InvariantCulture);
-
-									if (property.DynamicArray.IgnoreLength != 0 && property.DynamicArray.IgnoreLength == length)
+									
+									if (property.DynamicArray.FixedLength != 0)
 									{
-										length = 0;
+										fixedLength = property.DynamicArray.FixedLength;
+									}
+									else
+									{
+										fixedLength = length;
+									}
+
+									if (length > fixedLength)
+									{
+										length = fixedLength;
 									}
 								}
 
 								Type propertyElementType = propertyType.GetGenericArguments().First();
 								Array array = Array.CreateInstance(propertyElementType, length);
 
-								for (int i = 0; i < length; i++)
+								for (int i = 0; i < fixedLength; i++)
 								{
-									array.SetValue(DeserializeInternal(propertyElementType, reader), i);
+									object value = DeserializeInternal(propertyElementType, reader);
+
+									if (i < length)
+									{
+										array.SetValue(value, i);
+									}
 								}
 
 								property.Property.SetValue(obj, array);
