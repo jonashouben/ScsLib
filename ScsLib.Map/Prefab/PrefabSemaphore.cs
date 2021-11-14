@@ -27,6 +27,6 @@ namespace ScsLib.Map.Prefab
 		public Token Profile { get; internal set; } = default!;
 
 		[BinaryPosition(7)]
-		public uint Unknown { get; internal set; }
+		public uint Flags { get; internal set; }
 	}
 }
