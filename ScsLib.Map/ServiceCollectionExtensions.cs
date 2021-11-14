@@ -12,6 +12,7 @@ namespace ScsLib
 			services.AddSingleton<ITokenConverter, TokenConverter>();
 			services.AddSingleton<IPrefabReader, PrefabReader>();
 			services.AddSingleton<IMbdReader, MbdReader>();
+			services.AddSingleton<ISectorDescriptionReader, SectorDescriptionReader>();
 		}
 	}
 }
