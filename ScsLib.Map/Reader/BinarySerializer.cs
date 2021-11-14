@@ -92,6 +92,8 @@ namespace ScsLib.Reader
 						{
 							case SectorItemType.City:
 								return Deserialize<CitySectorItem>(reader);
+							case SectorItemType.Road:
+								return Deserialize<RoadSectorItem>(reader);
 							case SectorItemType.CutPlane:
 								return Deserialize<CutPlaneSectorItem>(reader);
 							default:
