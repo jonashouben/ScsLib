@@ -125,6 +125,7 @@ namespace ScsLib.Wpf
 				IHashEntryReader hashEntryReader = _services.GetRequiredService<IHashEntryReader>();
 				IThreeNKReader threeNKReader = _services.GetRequiredService<IThreeNKReader>();
 				IPrefabReader prefabReader = _services.GetRequiredService<IPrefabReader>();
+				IMbdReader mbdReader = _services.GetRequiredService<IMbdReader>();
 
 				using (FileStream fileStream = hashFsReader.Open(filePath))
 				{
@@ -132,11 +133,21 @@ namespace ScsLib.Wpf
 
 					using (MemoryStream ms = new MemoryStream(data))
 					{
-						if (file is INamedHashEntry named && named.VirtualPath.EndsWith(".ppd", StringComparison.Ordinal))
+						INamedHashEntry? named = file as INamedHashEntry;
+						if (named?.VirtualPath?.EndsWith(".ppd", StringComparison.Ordinal) == true)
 						{
 							var prefab = await prefabReader.ReadAsync(ms).ConfigureAwait(true);
 							trvText.Text = $@"Prefab
 Version = {prefab.Header.Version}";
+						}
+						else if (named?.VirtualPath?.EndsWith(".mbd", StringComparison.Ordinal) == true)
+						{
+							var mbd = await mbdReader.ReadAsync(ms).ConfigureAwait(true);
+							trvText.Text = $@"MBD
+CoreMapVersion = {mbd.CoreMapVersion}
+GameId = {mbd.GameId.StringValue}
+GameMapVersion = {mbd.GameMapVersion}
+EditorMapId = {mbd.EditorMapId}";
 						}
 						else
 						{

@@ -11,6 +11,7 @@ namespace ScsLib
 			services.AddSingleton<IBinarySerializer, BinarySerializer>();
 			services.AddSingleton<ITokenConverter, TokenConverter>();
 			services.AddSingleton<IPrefabReader, PrefabReader>();
+			services.AddSingleton<IMbdReader, MbdReader>();
 		}
 	}
 }
