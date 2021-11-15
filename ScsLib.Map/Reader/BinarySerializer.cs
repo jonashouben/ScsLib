@@ -8,6 +8,7 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Text;
 
 namespace ScsLib.Reader
 {
@@ -80,10 +81,42 @@ namespace ScsLib.Reader
 					return reader.ReadUInt32();
 				case TypeCode.UInt64:
 					return reader.ReadUInt64();
+				case TypeCode.String:
+					ulong length = reader.ReadUInt64();
+					return Encoding.UTF8.GetString(reader.ReadBytes((int) length));
 				case TypeCode.Object:
 					if (type == typeof(Token))
 					{
 						return _tokenConverter.FromToken(reader.ReadUInt64());
+					}
+					else if (type == typeof(SignOverrideAttribute))
+					{
+						SignOverrideAttribute attribute = new SignOverrideAttribute
+						{
+							Type = (SignOverrideAttributeType)reader.ReadUInt16(),
+							Index = reader.ReadUInt32()
+						};
+
+						switch (attribute.Type)
+						{
+							case SignOverrideAttributeType.Byte:
+								attribute.Value = reader.ReadByte();
+								break;
+							case SignOverrideAttributeType.Integer:
+								attribute.Value = reader.ReadInt32();
+								break;
+							case SignOverrideAttributeType.UnsignedInteger:
+								attribute.Value = reader.ReadUInt32();
+								break;
+							case SignOverrideAttributeType.Float:
+								attribute.Value = reader.ReadSingle();
+								break;
+							case SignOverrideAttributeType.String:
+								attribute.Value = DeserializeInternal(typeof(string), reader);
+								break;
+						}
+
+						return attribute;
 					}
 					else if (type == typeof(AbstractSectorItem))
 					{
@@ -104,6 +137,15 @@ namespace ScsLib.Reader
 								prefab.SemaphoreProfile = Deserialize<Token>(reader);
 
 								return prefab;
+							case SectorItemType.Sign:
+								SignSectorItem sign = Deserialize<SignSectorItem>(reader);
+
+								if (!string.IsNullOrWhiteSpace(sign.OverrideTemplate))
+								{
+									sign.Overrides = DeserializeMany<SignOverride>(reader, reader.ReadUInt32()).ToArray();
+								}
+
+								return sign;
 							default:
 								throw new NotSupportedException($"SectorItemType {sectorItemType} not supported!");
 						}
