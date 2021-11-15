@@ -1,4 +1,5 @@
 ﻿using ScsLib.Converter;
+using ScsLib.Map;
 using ScsLib.Map.SectorItem;
 using System;
 using System.Collections;
@@ -96,6 +97,13 @@ namespace ScsLib.Reader
 								return Deserialize<RoadSectorItem>(reader);
 							case SectorItemType.CutPlane:
 								return Deserialize<CutPlaneSectorItem>(reader);
+							case SectorItemType.Prefab:
+								PrefabSectorItem prefab = Deserialize<PrefabSectorItem>(reader);
+
+								prefab.Nodes = DeserializeMany<PrefabNode>(reader, (uint) prefab.NodeUids.Count).ToArray();
+								prefab.SemaphoreProfile = Deserialize<Token>(reader);
+
+								return prefab;
 							default:
 								throw new NotSupportedException($"SectorItemType {sectorItemType} not supported!");
 						}
