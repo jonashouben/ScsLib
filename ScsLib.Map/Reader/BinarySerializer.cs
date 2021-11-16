@@ -46,12 +46,12 @@ namespace ScsLib.Reader
 			_tokenConverter = tokenConverter;
 		}
 
-		public T Deserialize<T>(BinaryReader reader) where T : new()
+		public T Deserialize<T>(BinaryReader reader)
 		{
 			return (T)DeserializeInternal(typeof(T), reader);
 		}
 
-		public IEnumerable<T> DeserializeMany<T>(BinaryReader reader, uint count) where T : new()
+		public IEnumerable<T> DeserializeMany<T>(BinaryReader reader, uint count)
 		{
 			for (int i = 0; i < count; i++)
 			{
@@ -93,34 +93,57 @@ namespace ScsLib.Reader
 					{
 						SignOverrideAttribute attribute = new SignOverrideAttribute
 						{
-							Type = (SignOverrideAttributeType)reader.ReadUInt16(),
-							Index = reader.ReadUInt32()
+							Type = Deserialize<SignOverrideAttributeType>(reader),
+							Index = Deserialize<uint>(reader)
 						};
 
 						switch (attribute.Type)
 						{
 							case SignOverrideAttributeType.Byte:
-								attribute.Value = reader.ReadByte();
+								attribute.Value = Deserialize<byte>(reader);
 								break;
 							case SignOverrideAttributeType.Integer:
-								attribute.Value = reader.ReadInt32();
+								attribute.Value = Deserialize<int>(reader);
 								break;
 							case SignOverrideAttributeType.UnsignedInteger:
-								attribute.Value = reader.ReadUInt32();
+								attribute.Value = Deserialize<uint>(reader);
 								break;
 							case SignOverrideAttributeType.Float:
-								attribute.Value = reader.ReadSingle();
+								attribute.Value = Deserialize<float>(reader);
 								break;
 							case SignOverrideAttributeType.String:
-								attribute.Value = DeserializeInternal(typeof(string), reader);
+								attribute.Value = Deserialize<string>(reader);
+								break;
+							case SignOverrideAttributeType.UnsignedLong:
+								attribute.Value = Deserialize<ulong>(reader);
 								break;
 						}
 
 						return attribute;
 					}
+					else if (type == typeof(TriggerAction))
+					{
+						TriggerAction action = new TriggerAction
+						{
+							Name = Deserialize<Token>(reader)
+						};
+
+						uint numberParameters = Deserialize<uint>(reader);
+
+						if (numberParameters != 4294967295)
+						{
+							action.NumberParameters = DeserializeMany<float>(reader, numberParameters).ToArray();
+							action.StringParameters = DeserializeMany<string>(reader, Deserialize<uint>(reader)).ToArray();
+							action.TargetTags = DeserializeMany<Token>(reader, Deserialize<uint>(reader)).ToArray();
+							action.TargetRange = Deserialize<float>(reader);
+							action.Flags = Deserialize<uint>(reader);
+						}
+
+						return action;
+					}
 					else if (type == typeof(AbstractSectorItem))
 					{
-						SectorItemType sectorItemType = (SectorItemType)reader.ReadUInt32();
+						SectorItemType sectorItemType = Deserialize<SectorItemType>(reader);
 
 						switch (sectorItemType)
 						{
@@ -152,6 +175,15 @@ namespace ScsLib.Reader
 								return Deserialize<TrafficAreaSectorItem>(reader);
 							case SectorItemType.TrajectoryItem:
 								return Deserialize<TrajectorySectorItem>(reader);
+							case SectorItemType.Trigger:
+								TriggerSectorItem trigger = Deserialize<TriggerSectorItem>(reader);
+
+								if (trigger.NodeUids.Count == 1)
+								{
+									trigger.Range = Deserialize<float>(reader);
+								}
+
+								return trigger;
 							default:
 								throw new NotSupportedException($"SectorItemType {sectorItemType} not supported!");
 						}

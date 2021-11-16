@@ -6,6 +6,7 @@
 		Integer = 2,
 		UnsignedInteger = 3,
 		Float = 4,
-		String = 5
+		String = 5,
+		UnsignedLong = 6
 	}
 }

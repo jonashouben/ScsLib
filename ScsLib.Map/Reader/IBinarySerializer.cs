@@ -5,7 +5,7 @@ namespace ScsLib.Reader
 {
 	public interface IBinarySerializer
 	{
-		T Deserialize<T>(BinaryReader reader) where T : new();
-		IEnumerable<T> DeserializeMany<T>(BinaryReader reader, uint count) where T : new();
+		T Deserialize<T>(BinaryReader reader);
+		IEnumerable<T> DeserializeMany<T>(BinaryReader reader, uint count);
 	}
 }
