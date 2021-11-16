@@ -192,6 +192,8 @@ namespace ScsLib.Reader
 								return Deserialize<MapOverlaySectorItem>(reader);
 							case SectorItemType.Garage:
 								return Deserialize<GarageSectorItem>(reader);
+							case SectorItemType.Services:
+								return Deserialize<ServicesSectorItem>(reader);
 							default:
 								throw new NotSupportedException($"SectorItemType {sectorItemType} not supported!");
 						}
