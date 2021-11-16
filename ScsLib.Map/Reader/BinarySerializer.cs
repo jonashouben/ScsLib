@@ -186,6 +186,8 @@ namespace ScsLib.Reader
 								return trigger;
 							case SectorItemType.Company:
 								return Deserialize<CompanySectorItem>(reader);
+							case SectorItemType.Service:
+								return Deserialize<ServiceSectorItem>(reader);
 							default:
 								throw new NotSupportedException($"SectorItemType {sectorItemType} not supported!");
 						}
