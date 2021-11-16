@@ -196,6 +196,10 @@ namespace ScsLib.Reader
 								return Deserialize<ServicesSectorItem>(reader);
 							case SectorItemType.Cutscene:
 								return Deserialize<CutsceneSectorItem>(reader);
+							case SectorItemType.BusStop:
+								return Deserialize<BusStopSectorItem>(reader);
+							case SectorItemType.Ferry:
+								return Deserialize<FerrySectorItem>(reader);
 							default:
 								throw new NotSupportedException($"SectorItemType {sectorItemType} not supported!");
 						}
