@@ -3,6 +3,7 @@ using Microsoft.Win32;
 using ScsLib.HashFileSystem;
 using ScsLib.HashFileSystem.Named;
 using ScsLib.HashFileSystem.Reader;
+using ScsLib.Hashing;
 using ScsLib.Reader;
 using ScsLib.ThreeNK;
 using System;
@@ -121,6 +122,7 @@ namespace ScsLib.Wpf
 			{
 				progress.IsIndeterminate = true;
 
+				ICityHash cityHash = _services.GetRequiredService<ICityHash>();
 				IHashFsReader hashFsReader = _services.GetRequiredService<IHashFsReader>();
 				IHashEntryReader hashEntryReader = _services.GetRequiredService<IHashEntryReader>();
 				IThreeNKReader threeNKReader = _services.GetRequiredService<IThreeNKReader>();
@@ -145,11 +147,35 @@ Version = {prefab.Header.Version}";
 						else if (named?.VirtualPath?.EndsWith(".mbd", StringComparison.Ordinal) == true)
 						{
 							var mbd = await mbdReader.ReadAsync(ms).ConfigureAwait(true);
+
+							List<string> sectors = new List<string>();
+
+							string dirName = named.VirtualPath.Substring(0, named.VirtualPath.Length - 4);
+
+							if (hashFs!.Entries.TryGetValue(cityHash.CityHash64(dirName), out HashEntry? entry) && entry is HashDirectory dir)
+							{
+								foreach (var dirFile in dir.EntryNames.Where(row => row.Name.EndsWith(".base", StringComparison.Ordinal)))
+								{
+									if (hashFs!.Entries.TryGetValue(cityHash.CityHash64(dirName + "/" + dirFile.Name), out HashEntry? dirEntry) && dirEntry is HashFile dirEntryFile)
+									{
+										byte[] sectorData = await hashEntryReader.ReadAsync(fileStream, dirEntryFile).ConfigureAwait(true);
+
+										using (MemoryStream sectorMs = new MemoryStream(sectorData))
+										{
+											var sector = await sectorReader.ReadAsync(sectorMs).ConfigureAwait(true);
+
+											sectors.Add(dirFile.Name);
+										}
+									}
+								}
+							}
+
 							trvText.Text = $@"MBD
 CoreMapVersion = {mbd.CoreMapVersion}
 GameId = {mbd.GameId.StringValue}
 GameMapVersion = {mbd.GameMapVersion}
-EditorMapId = {mbd.EditorMapId}";
+EditorMapId = {mbd.EditorMapId}
+Sectors = {sectors.Count}";
 						}
 						else if (named?.VirtualPath?.EndsWith(".desc", StringComparison.Ordinal) == true)
 						{
@@ -158,7 +184,7 @@ EditorMapId = {mbd.EditorMapId}";
 Version = {sectorDescription.Version}
 Climate Profile = {sectorDescription.ClimateProfile.StringValue}";
 						}
-						else if (named?.VirtualPath?.EndsWith(".aux", StringComparison.Ordinal) == true || named?.VirtualPath?.EndsWith(".base", StringComparison.Ordinal) == true)
+						else if (named?.VirtualPath?.EndsWith(".base", StringComparison.Ordinal) == true)
 						{
 							var sector = await sectorReader.ReadAsync(ms).ConfigureAwait(true);
 							trvText.Text = $@"Sector
