@@ -146,6 +146,12 @@ namespace ScsLib.Reader
 								}
 
 								return sign;
+							case SectorItemType.MapArea:
+								return Deserialize<MapAreaSectorItem>(reader);
+							case SectorItemType.TrafficArea:
+								return Deserialize<TrafficAreaSectorItem>(reader);
+							case SectorItemType.TrajectoryItem:
+								return Deserialize<TrajectorySectorItem>(reader);
 							default:
 								throw new NotSupportedException($"SectorItemType {sectorItemType} not supported!");
 						}
